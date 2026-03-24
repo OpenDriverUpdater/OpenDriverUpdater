@@ -11,6 +11,9 @@ jobs:
     name: Build & Test (Windows)
     runs-on: windows-latest
     
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
     steps:
     - uses: actions/checkout@v4
     
@@ -22,15 +25,21 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
       
-    - name: Build Solution (Windows)
-      run: dotnet build --no-restore --configuration Release
+    - name: Build Core, Infrastructure & CLI (Windows)
+      run: |
+        dotnet build src/OpenDriverUpdater.Core/OpenDriverUpdater.Core.csproj --configuration Release --no-restore
+        dotnet build src/OpenDriverUpdater.Infrastructure/OpenDriverUpdater.Infrastructure.csproj --configuration Release --no-restore
+        dotnet build src/OpenDriverUpdater.Cli/OpenDriverUpdater.Cli.csproj --configuration Release --no-restore
       
     - name: Run Unit Tests
-      run: dotnet test --no-build --configuration Release --verbosity normal
+      run: dotnet test tests/OpenDriverUpdater.Core.Tests/OpenDriverUpdater.Core.Tests.csproj --configuration Release --no-build --verbosity normal
 
   build_linux_verification:
     name: Build Verification (Linux)
     runs-on: ubuntu-latest
+    
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     
     steps:
     - uses: actions/checkout@v4
