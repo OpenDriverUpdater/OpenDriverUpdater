@@ -57,7 +57,7 @@ OpenDriverUpdater.sln
 ## 🚀 Quick Start
 
 ```powershell
-# Build the solution
+# Build the Core, Infrastructure, and CLI
 dotnet build OpenDriverUpdater.sln
 
 # Run the CLI
@@ -66,6 +66,10 @@ dotnet run --project src/OpenDriverUpdater.Cli -- scan
 # Run Unit Tests
 dotnet test
 ```
+
+> [!IMPORTANT]
+> **WinUI 3 App**: To build and run the desktop application (`OpenDriverUpdater.App`), use **Visual Studio 2022** with the **Windows app development** workload (Windows App SDK) installed. The standard .NET CLI does not natively support building WinUI 3 projects without additional SDK components.
+
 
 ## 🛠️ CLI Commands
 
