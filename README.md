@@ -92,17 +92,19 @@ dotnet test
 - Microsoft Catalog integration
 - Native WinUI 3 & CLI interfaces
 
-### Phase 2
-- Secure download manager with SHA256 verification
-- Authenticode signature validation
-- Advanced Trust Scoring engine
-- JSON metadata caching
+### Phase 2 (Intelligence & Utility) 🛠️
+- **Noise Reduction**: Implement filters for Microsoft generic devices and ACPI system spam.
+- **Smart Grouping**: Group duplicate entries (e.g., multi-core processors) to provide a cleaner view.
+- **Improved Categorization**: Refine `DeviceClass` detection to reduce "Unknown" entries for standard components.
+- **Priority View**: Highlight "Important Devices" (GPU, WiFi, Audio, Storage) first.
+- **Download Manager**: Secure streaming downloads with SHA256 verification.
 
-### Phase 3
-- Automated installation via `pnputil`
-- System restore point integration
-- OEM source expansion (Intel, AMD, NVIDIA)
-- SQLite local database for history
+### Phase 3 (Installation & Safety) 🛡️
+- **Authenticode Validation**: Signature verification engine.
+- **Automated Installation**: Implementation via `pnputil`.
+- **System Safety**: Automatic restore point creation and rollback support.
+- **Expanded Sources**: OEM support for Intel, AMD, and NVIDIA.
+- **Local Database**: SQLite storage for scan history and update logs.
 
 ---
 
