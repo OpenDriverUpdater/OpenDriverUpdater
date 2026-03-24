@@ -7,15 +7,15 @@ namespace OpenDriverUpdater.Core.Models;
 /// </summary>
 public sealed class DeviceInfo
 {
-    public required string Id { get; init; }
-    public required string Name { get; init; }
-    public DeviceClass Class { get; init; } = DeviceClass.Unknown;
-    public string? Manufacturer { get; init; }
-    public IReadOnlyList<string> HardwareIds { get; init; } = [];
-    public IReadOnlyList<string> CompatibleIds { get; init; } = [];
-    public string? InstalledDriverVersion { get; init; }
-    public DateTime? InstalledDriverDate { get; init; }
-    public string? InstalledProvider { get; init; }
+    public string Id { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public DeviceClass Class { get; set; } = DeviceClass.Unknown;
+    public string? Manufacturer { get; set; }
+    public IReadOnlyList<string> HardwareIds { get; set; } = [];
+    public IReadOnlyList<string> CompatibleIds { get; set; } = [];
+    public string? InstalledDriverVersion { get; set; }
+    public DateTime? InstalledDriverDate { get; set; }
+    public string? InstalledProvider { get; set; }
 
     public override string ToString() => $"{Name} [{Class}] v{InstalledDriverVersion ?? "N/A"}";
 }

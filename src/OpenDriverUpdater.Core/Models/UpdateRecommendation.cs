@@ -7,11 +7,11 @@ namespace OpenDriverUpdater.Core.Models;
 /// </summary>
 public sealed class UpdateRecommendation
 {
-    public required string DeviceId { get; init; }
-    public string? InstalledVersion { get; init; }
-    public required string CandidateVersion { get; init; }
-    public RecommendationType RecommendationType { get; init; }
-    public TrustScore? TrustScore { get; init; }
-    public string? Reason { get; init; }
-    public CandidateDriver? Candidate { get; init; }
+    public string DeviceId { get; set; } = string.Empty;
+    public string? InstalledVersion { get; set; }
+    public string CandidateVersion { get; set; } = string.Empty;
+    public RecommendationType RecommendationType { get; set; }
+    public TrustScore? TrustScore { get; set; }
+    public string? Reason { get; set; }
+    public CandidateDriver? Candidate { get; set; }
 }

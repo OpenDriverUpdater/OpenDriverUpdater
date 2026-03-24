@@ -7,15 +7,15 @@ namespace OpenDriverUpdater.Core.Models;
 /// </summary>
 public sealed class CandidateDriver
 {
-    public required string Title { get; init; }
-    public required string Version { get; init; }
-    public DateTime? ReleaseDate { get; init; }
-    public string? Provider { get; init; }
-    public string? DownloadUrl { get; init; }
-    public SourceType SourceType { get; init; } = SourceType.Unknown;
-    public bool IsSigned { get; init; }
-    public bool IsBeta { get; init; }
-    public IReadOnlyList<string> SupportedHardwareIds { get; init; } = [];
+    public string Title { get; set; } = string.Empty;
+    public string Version { get; set; } = string.Empty;
+    public DateTime? ReleaseDate { get; set; }
+    public string? Provider { get; set; }
+    public string? DownloadUrl { get; set; }
+    public SourceType SourceType { get; set; } = SourceType.Unknown;
+    public bool IsSigned { get; set; }
+    public bool IsBeta { get; set; }
+    public IReadOnlyList<string> SupportedHardwareIds { get; set; } = [];
 
     public override string ToString() => $"{Title} v{Version} ({SourceType})";
 }

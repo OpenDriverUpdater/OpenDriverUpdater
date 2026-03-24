@@ -1,0 +1,57 @@
+name: Cross-Platform Build & Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build_windows:
+    name: Build & Test (Windows)
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+        
+    - name: Restore dependencies
+      run: dotnet restore
+      
+    - name: Build Solution (Windows)
+      run: dotnet build --no-restore --configuration Release
+      
+    - name: Run Unit Tests
+      run: dotnet test --no-build --configuration Release --verbosity normal
+
+  build_linux_verification:
+    name: Build Verification (Linux)
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+        
+    - name: Restore Core & Infrastructure (Linux)
+      run: |
+        dotnet restore src/OpenDriverUpdater.Core/OpenDriverUpdater.Core.csproj
+        dotnet restore src/OpenDriverUpdater.Infrastructure/OpenDriverUpdater.Infrastructure.csproj
+        dotnet restore tests/OpenDriverUpdater.Core.Tests/OpenDriverUpdater.Core.Tests.csproj
+        
+    - name: Build Verification (Core & Tests on Linux)
+      run: |
+        dotnet build src/OpenDriverUpdater.Core/OpenDriverUpdater.Core.csproj --configuration Release
+        dotnet test tests/OpenDriverUpdater.Core.Tests/OpenDriverUpdater.Core.Tests.csproj --configuration Release
+      
+    - name: Note on Platform Limitations
+      run: |
+        echo "Note: The full App (WinUI 3) and Infrastructure (WMI/PnP) require Windows APIs and cannot be fully built/run on Linux."
+        echo "However, the Core logic is verified here."
