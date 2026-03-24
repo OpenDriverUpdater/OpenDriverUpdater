@@ -37,13 +37,15 @@ jobs:
       run: |
         dotnet test tests/OpenDriverUpdater.Core.Tests/OpenDriverUpdater.Core.Tests.csproj --configuration Release --no-build --verbosity normal
 
-    - name: Upload CLI & Infrastructure Artifacts (Windows)
+    - name: Publish CLI (Windows)
+      run: |
+        dotnet publish src/OpenDriverUpdater.Cli/OpenDriverUpdater.Cli.csproj --configuration Release --no-restore --output ./publish/cli-windows
+
+    - name: Upload CLI Artifact (Windows)
       uses: actions/upload-artifact@v4
       with:
         name: OpenDriverUpdater-CLI-Windows
-        path: |
-          src/OpenDriverUpdater.Cli/bin/Release/net8.0-windows/
-          !**/*.pdb
+        path: ./publish/cli-windows/
         retention-days: 7
 
   build_linux_verification:
@@ -68,13 +70,15 @@ jobs:
         dotnet build tests/OpenDriverUpdater.Core.Tests/OpenDriverUpdater.Core.Tests.csproj --configuration Release
         dotnet test tests/OpenDriverUpdater.Core.Tests/OpenDriverUpdater.Core.Tests.csproj --configuration Release --no-build
       
+    - name: Publish Core (Linux)
+      run: |
+        dotnet publish src/OpenDriverUpdater.Core/OpenDriverUpdater.Core.csproj --configuration Release --output ./publish/core-linux
+
     - name: Upload Core Artifact (Linux Verification)
       uses: actions/upload-artifact@v4
       with:
         name: OpenDriverUpdater-Core-Linux
-        path: |
-          src/OpenDriverUpdater.Core/bin/Release/net8.0/
-          !**/*.pdb
+        path: ./publish/core-linux/
         retention-days: 1
 
     - name: Note on Platform Limitations
