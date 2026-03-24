@@ -37,6 +37,15 @@ jobs:
       run: |
         dotnet test tests/OpenDriverUpdater.Core.Tests/OpenDriverUpdater.Core.Tests.csproj --configuration Release --no-build --verbosity normal
 
+    - name: Upload CLI & Infrastructure Artifacts (Windows)
+      uses: actions/upload-artifact@v4
+      with:
+        name: OpenDriverUpdater-CLI-Windows
+        path: |
+          src/OpenDriverUpdater.Cli/bin/Release/net8.0-windows/
+          !**/*.pdb
+        retention-days: 7
+
   build_linux_verification:
     name: Build Verification (Linux)
     runs-on: ubuntu-latest
@@ -59,6 +68,15 @@ jobs:
         dotnet build tests/OpenDriverUpdater.Core.Tests/OpenDriverUpdater.Core.Tests.csproj --configuration Release
         dotnet test tests/OpenDriverUpdater.Core.Tests/OpenDriverUpdater.Core.Tests.csproj --configuration Release --no-build
       
+    - name: Upload Core Artifact (Linux Verification)
+      uses: actions/upload-artifact@v4
+      with:
+        name: OpenDriverUpdater-Core-Linux
+        path: |
+          src/OpenDriverUpdater.Core/bin/Release/net8.0/
+          !**/*.pdb
+        retention-days: 1
+
     - name: Note on Platform Limitations
       run: |
         echo "Note: WinUI 3, WMI, and PnP components (App, Infrastructure, CLI) require Windows and were skipped on this runner."
