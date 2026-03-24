@@ -61,7 +61,6 @@ public sealed class VersionComparerService : IVersionComparer
 
     private static Version? NormalizeVersion(string version)
     {
-        // Strip common prefixes like "v" or "V"
         var clean = version.TrimStart('v', 'V').Trim();
         return Version.TryParse(clean, out var result) ? result : null;
     }
