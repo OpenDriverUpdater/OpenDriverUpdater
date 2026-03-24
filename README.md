@@ -9,6 +9,14 @@ The Driver Updater Windows Actually Needs.
 
 ---
 
+## 📸 Preview
+
+![OpenDriverUpdater Preview](./docs/odu_app_screenshot.png)
+
+*Modern WinUI 3 Dashboard and CLI interface.*
+
+---
+
 **OpenDriverUpdater** is a free, open-source Windows driver management tool designed with a focus on safety, transparency, and user control. It scans your hardware, finds official driver updates from trusted sources like the Microsoft Catalog, and lets you install them with confidence.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
