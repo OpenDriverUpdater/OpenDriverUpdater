@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <WindowsSdkPackageVersion>10.0.19041.41</WindowsSdkPackageVersion>
+    <UseWinUI>true</UseWinUI>
+    <AssemblyName>OpenDriverUpdater</AssemblyName>
+    <Description>WinUI 3 desktop application for OpenDriverUpdater.</Description>
+    <RuntimeIdentifiers>win-x64;win-arm64</RuntimeIdentifiers>
+    <Platforms>x64;ARM64</Platforms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OpenDriverUpdater.Core\OpenDriverUpdater.Core.csproj" />
+    <ProjectReference Include="..\OpenDriverUpdater.Infrastructure\OpenDriverUpdater.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.5.240627000" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\..\img\odu_favicon.ico" Link="Assets\odu_favicon.ico" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\img\logo_odu-removebg.png" Link="Assets\logo_odu.png" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

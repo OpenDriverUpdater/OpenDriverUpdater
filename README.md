@@ -1,115 +1,111 @@
 # OpenDriverUpdater
 
-**Safe. Open. Transparent.**
+<p align="center">
+  <img src="img/banner_odu.jpg" alt="OpenDriverUpdater Banner" width="800" />
+</p>
+
+### Safe. Open. Transparent.
 The Driver Updater Windows Actually Needs.
 
 ---
 
-## 🚀 Overview
+**OpenDriverUpdater** is a free, open-source Windows driver management tool designed with a focus on safety, transparency, and user control. It scans your hardware, finds official driver updates from trusted sources like the Microsoft Catalog, and lets you install them with confidence.
 
-OpenDriverUpdater is a **free and open-source driver updater for Windows** built with a focus on **safety, transparency, and performance**.
-
-Unlike traditional driver updater tools, OpenDriverUpdater uses **official sources** and avoids unnecessary risks.
-
-✔ No ads
-✔ No tracking
-✔ No bundled software
-✔ No hidden background services
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![.NET 8](https://img.shields.io/badge/.NET-8.0-purple.svg)](https://dotnet.microsoft.com/)
+[![WinUI 3](https://img.shields.io/badge/WinUI-3-0078D4.svg)](https://learn.microsoft.com/en-us/windows/apps/winui/)
 
 ---
 
 ## ✨ Features
 
-* 🔍 Automatic hardware detection (Hardware ID based)
-* 🧠 Smart driver matching using official sources
-* 🔒 Safe update recommendations (trust scoring)
-* ⚡ Lightweight and fast
-* 🖥️ Modern UI built with WinUI 3
-* 🧰 CLI support for advanced users
-* 📦 Offline-ready architecture (planned)
+* 🔍 **Automatic Hardware Detection**: Scans devices using WMI and PnP APIs.
+* 🧠 **Smart Driver Matching**: Precise matching based on Hardware IDs.
+* 🛡️ **Safe Recommendations**: Multi-layer trust scoring for every candidate.
+* 🌐 **Official Sources**: Queries Microsoft Update Catalog, Intel, AMD, and NVIDIA.
+* 🖥️ **Modern UI**: Native WinUI 3 interface with a premium dark theme.
+* 🧰 **CLI Support**: Full terminal interface for advanced users and automation.
+* 🚫 **Zero Bloat**: No ads, no tracking, no bundled software.
 
 ---
 
-## 🛠️ How It Works
-
-1. Scan system devices
-2. Extract Hardware IDs
-3. Match drivers from official sources
-4. Compare versions
-5. Recommend safe updates
-6. Download & install (planned)
-
----
-
-## 🔐 Safety First
-
-OpenDriverUpdater prioritizes system safety:
-
-* Uses **Microsoft Update Catalog**
-* Verifies driver sources
-* Avoids unknown or unsafe packages
-* Gives full control to the user before installation
-
----
-
-## 🧱 Project Structure
+## 🧱 Architecture
 
 ```
-src/
-  OpenDriverUpdater.Core
-  OpenDriverUpdater.Infrastructure
-  OpenDriverUpdater.App
-  OpenDriverUpdater.Cli
-
-tests/
-  OpenDriverUpdater.Core.Tests
-  OpenDriverUpdater.Infrastructure.Tests
+OpenDriverUpdater.sln
+├── src/
+│   ├── OpenDriverUpdater.Core          # Pure business logic (Models, Interfaces, Services, Rules)
+│   ├── OpenDriverUpdater.Infrastructure # Windows API, Networking, Storage, Security
+│   ├── OpenDriverUpdater.App           # WinUI 3 Desktop Interface (MVVM)
+│   └── OpenDriverUpdater.Cli           # Console Interface
+└── tests/
+    ├── OpenDriverUpdater.Core.Tests
+    └── OpenDriverUpdater.Infrastructure.Tests
 ```
+
+### Layer Breakdown
+
+| Layer | Purpose | Dependencies |
+|-------|---------|-------------|
+| **Core** | Business logic, models, and interfaces | None |
+| **Infrastructure** | Platform-specific implementations (WMI, PnP, SQLite) | Core |
+| **App** | Modern desktop UI using WinUI 3 | Core, Infrastructure |
+| **CLI** | Terminal tool using System.CommandLine | Core, Infrastructure |
 
 ---
 
-## 🧑‍💻 Tech Stack
+## 🚀 Quick Start
 
-* **.NET 8**
-* **C#**
-* **WinUI 3**
-* **MVVM Architecture**
+```powershell
+# Build the solution
+dotnet build OpenDriverUpdater.sln
+
+# Run the CLI
+dotnet run --project src/OpenDriverUpdater.Cli -- scan
+
+# Run Unit Tests
+dotnet test
+```
+
+## 🛠️ CLI Commands
+
+| Command | Description |
+|---------|-------------|
+| `scan` | Scan system for devices |
+| `list-devices` | List detected hardware with details |
+| `check-updates` | Search for available driver updates |
+| `download <id>` | Download a specific driver package |
+| `install <path>` | Install a driver using pnputil |
+| `export-json` | Export scan results to JSON |
 
 ---
 
-## 🖥️ CLI Usage (Planned)
+## 🗺️ MVP Roadmap
 
-```
-odu scan
-odu list-devices
-odu check-updates
-odu install
-```
+### Phase 1 ✅
+- Device scanning (WMI + PnP)
+- Hardware ID extraction & matching
+- Microsoft Catalog integration
+- Native WinUI 3 & CLI interfaces
 
----
+### Phase 2
+- Secure download manager with SHA256 verification
+- Authenticode signature validation
+- Advanced Trust Scoring engine
+- JSON metadata caching
 
-## 🌐 Website
-
-https://odu.crty-dev.com
+### Phase 3
+- Automated installation via `pnputil`
+- System restore point integration
+- OEM source expansion (Intel, AMD, NVIDIA)
+- SQLite local database for history
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome!
-
-* Fork the repo
-* Create a feature branch
-* Submit a pull request
-
----
+We welcome contributions! Please feel free to open issues or submit pull requests.
 
 ## 📜 License
 
-MIT License
-
----
-
-## ⭐ Philosophy
-
-> Driver updates should be safe, transparent, and under your control — not hidden behind ads or risky automation.
+MIT © OpenDriverUpdater Contributors

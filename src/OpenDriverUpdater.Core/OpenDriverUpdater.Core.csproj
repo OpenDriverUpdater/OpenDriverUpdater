@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <AssemblyName>OpenDriverUpdater.Core</AssemblyName>
+    <Description>Core business logic for OpenDriverUpdater — models, interfaces, services, and rules.</Description>
+  </PropertyGroup>
+
+</Project>

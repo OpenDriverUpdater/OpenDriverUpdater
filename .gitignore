@@ -1,0 +1,28 @@
+## Build output
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+## IDE
+.vs/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## NuGet
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+*.nupkg
+**/packages.lock.json
+
+## Web (ayrı deploy edilecek)
+Web/
+
+## Misc
+*.tmp
+*.bak
+*.swp
+~$*

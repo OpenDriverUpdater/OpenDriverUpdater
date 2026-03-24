@@ -1,0 +1,53 @@
+<Page
+    x:Class="OpenDriverUpdater.App.Views.DashboardPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="using:OpenDriverUpdater.App.ViewModels">
+
+    <Page.DataContext>
+        <vm:DashboardViewModel />
+    </Page.DataContext>
+
+    <ScrollViewer Padding="32">
+        <StackPanel Spacing="24">
+            <!-- Header -->
+            <TextBlock Text="Dashboard" Style="{StaticResource TitleTextBlockStyle}" />
+            <TextBlock Text="System overview &amp; last scan summary" Style="{StaticResource SubtitleTextBlockStyle}" Opacity="0.6" />
+
+            <!-- Stats Cards -->
+            <StackPanel Orientation="Horizontal" Spacing="16">
+                <Border Style="{StaticResource CardStyle}" Width="200">
+                    <StackPanel Padding="20" Spacing="8">
+                        <TextBlock Text="Devices" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                        <TextBlock Text="{Binding DeviceCount}" FontSize="32" FontWeight="Bold" />
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource CardStyle}" Width="200">
+                    <StackPanel Padding="20" Spacing="8">
+                        <TextBlock Text="Updates Available" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                        <TextBlock Text="{Binding UpdateCount}" FontSize="32" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" />
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource CardStyle}" Width="200">
+                    <StackPanel Padding="20" Spacing="8">
+                        <TextBlock Text="Last Scan" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                        <TextBlock Text="{Binding LastScanText}" FontSize="16" />
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <!-- Actions -->
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <Button Content="Scan Now" Command="{Binding ScanCommand}" Style="{StaticResource AccentButtonStyle}" />
+                <Button Content="Check Updates" Command="{Binding CheckUpdatesCommand}" />
+            </StackPanel>
+
+            <!-- Status -->
+            <ProgressBar IsIndeterminate="{Binding IsLoading}" Visibility="{Binding IsLoading}" />
+            <TextBlock Text="{Binding StatusMessage}" Opacity="0.7" />
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

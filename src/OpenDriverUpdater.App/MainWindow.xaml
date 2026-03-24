@@ -1,0 +1,27 @@
+<Window
+    x:Class="OpenDriverUpdater.App.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    Title="OpenDriverUpdater">
+
+    <Grid>
+        <muxc:NavigationView
+            x:Name="NavView"
+            IsBackButtonVisible="Collapsed"
+            IsSettingsVisible="True"
+            PaneDisplayMode="Left"
+            SelectionChanged="NavView_SelectionChanged">
+
+            <muxc:NavigationView.MenuItems>
+                <muxc:NavigationViewItem Content="Dashboard" Tag="Dashboard" Icon="Home" />
+                <muxc:NavigationViewItem Content="Devices" Tag="Devices" Icon="ViewAll" />
+                <muxc:NavigationViewItem Content="Updates" Tag="Updates" Icon="Download" />
+                <muxc:NavigationViewItem Content="Logs" Tag="Logs" Icon="List" />
+            </muxc:NavigationView.MenuItems>
+
+            <Frame x:Name="ContentFrame" />
+
+        </muxc:NavigationView>
+    </Grid>
+</Window>

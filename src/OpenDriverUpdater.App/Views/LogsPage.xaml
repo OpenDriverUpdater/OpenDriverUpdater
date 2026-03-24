@@ -1,0 +1,33 @@
+<Page
+    x:Class="OpenDriverUpdater.App.Views.LogsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="using:OpenDriverUpdater.App.ViewModels">
+
+    <Page.DataContext>
+        <vm:LogsViewModel />
+    </Page.DataContext>
+
+    <Grid Padding="32" RowSpacing="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="Logs" Style="{StaticResource TitleTextBlockStyle}" />
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="12">
+            <Button Content="Refresh" Command="{Binding RefreshCommand}" />
+            <Button Content="Open Log Folder" Command="{Binding OpenLogFolderCommand}" />
+        </StackPanel>
+
+        <ListView Grid.Row="2" ItemsSource="{Binding LogEntries}" SelectionMode="None" FontFamily="Cascadia Code, Consolas">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding}" FontSize="12" TextWrapping="NoWrap" IsTextSelectionEnabled="True" />
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+    </Grid>
+</Page>
