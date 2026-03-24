@@ -7,7 +7,10 @@ on:
     branches: [ main ]
 
 env:
+  # Move this to the top level for all jobs and steps
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  # Also set for Node 16/20/24 compatibility issues
+  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
 
 jobs:
   build_windows:
@@ -22,17 +25,19 @@ jobs:
       with:
         dotnet-version: 8.0.x
         
-    - name: Restore dependencies
-      run: dotnet restore
+    - name: Restore necessary projects (Windows)
+      run: |
+        dotnet restore src/OpenDriverUpdater.Cli/OpenDriverUpdater.Cli.csproj
+        dotnet restore tests/OpenDriverUpdater.Core.Tests/OpenDriverUpdater.Core.Tests.csproj
       
     - name: Build Core, Infrastructure & CLI (Windows)
       run: |
-        dotnet build src/OpenDriverUpdater.Core/OpenDriverUpdater.Core.csproj --configuration Release --no-restore
-        dotnet build src/OpenDriverUpdater.Infrastructure/OpenDriverUpdater.Infrastructure.csproj --configuration Release --no-restore
         dotnet build src/OpenDriverUpdater.Cli/OpenDriverUpdater.Cli.csproj --configuration Release --no-restore
+        dotnet build tests/OpenDriverUpdater.Core.Tests/OpenDriverUpdater.Core.Tests.csproj --configuration Release --no-restore
       
     - name: Run Unit Tests (Windows)
-      run: dotnet test tests/OpenDriverUpdater.Core.Tests/OpenDriverUpdater.Core.Tests.csproj --configuration Release --no-build --verbosity normal
+      run: |
+        dotnet test tests/OpenDriverUpdater.Core.Tests/OpenDriverUpdater.Core.Tests.csproj --configuration Release --no-build --verbosity normal
 
   build_linux_verification:
     name: Build Verification (Linux)
@@ -53,7 +58,7 @@ jobs:
         
     - name: Build & Test Core (Linux)
       run: |
-        dotnet build src/OpenDriverUpdater.Core/OpenDriverUpdater.Core.csproj --configuration Release
+        dotnet build tests/OpenDriverUpdater.Core.Tests/OpenDriverUpdater.Core.Tests.csproj --configuration Release
         dotnet test tests/OpenDriverUpdater.Core.Tests/OpenDriverUpdater.Core.Tests.csproj --configuration Release --no-build
       
     - name: Note on Platform Limitations
