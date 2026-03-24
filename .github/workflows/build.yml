@@ -6,14 +6,14 @@ on:
   pull_request:
     branches: [ main ]
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build_windows:
     name: Build & Test (Windows)
     runs-on: windows-latest
     
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
     steps:
     - uses: actions/checkout@v4
     
@@ -31,15 +31,12 @@ jobs:
         dotnet build src/OpenDriverUpdater.Infrastructure/OpenDriverUpdater.Infrastructure.csproj --configuration Release --no-restore
         dotnet build src/OpenDriverUpdater.Cli/OpenDriverUpdater.Cli.csproj --configuration Release --no-restore
       
-    - name: Run Unit Tests
+    - name: Run Unit Tests (Windows)
       run: dotnet test tests/OpenDriverUpdater.Core.Tests/OpenDriverUpdater.Core.Tests.csproj --configuration Release --no-build --verbosity normal
 
   build_linux_verification:
     name: Build Verification (Linux)
     runs-on: ubuntu-latest
-    
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     
     steps:
     - uses: actions/checkout@v4
@@ -49,18 +46,16 @@ jobs:
       with:
         dotnet-version: 8.0.x
         
-    - name: Restore Core & Infrastructure (Linux)
+    - name: Restore Core & Tests (Linux)
       run: |
         dotnet restore src/OpenDriverUpdater.Core/OpenDriverUpdater.Core.csproj
-        dotnet restore src/OpenDriverUpdater.Infrastructure/OpenDriverUpdater.Infrastructure.csproj
         dotnet restore tests/OpenDriverUpdater.Core.Tests/OpenDriverUpdater.Core.Tests.csproj
         
-    - name: Build Verification (Core & Tests on Linux)
+    - name: Build & Test Core (Linux)
       run: |
         dotnet build src/OpenDriverUpdater.Core/OpenDriverUpdater.Core.csproj --configuration Release
-        dotnet test tests/OpenDriverUpdater.Core.Tests/OpenDriverUpdater.Core.Tests.csproj --configuration Release
+        dotnet test tests/OpenDriverUpdater.Core.Tests/OpenDriverUpdater.Core.Tests.csproj --configuration Release --no-build
       
     - name: Note on Platform Limitations
       run: |
-        echo "Note: The full App (WinUI 3) and Infrastructure (WMI/PnP) require Windows APIs and cannot be fully built/run on Linux."
-        echo "However, the Core logic is verified here."
+        echo "Note: WinUI 3, WMI, and PnP components (App, Infrastructure, CLI) require Windows and were skipped on this runner."
