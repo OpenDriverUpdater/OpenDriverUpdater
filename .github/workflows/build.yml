@@ -7,10 +7,8 @@ on:
     branches: [ main ]
 
 env:
-  # Move this to the top level for all jobs and steps
+  # Opt-in to Node.js 24 for GitHub Actions runners to clear deprecation warnings.
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  # Also set for Node 16/20/24 compatibility issues
-  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
 
 jobs:
   build_windows:
