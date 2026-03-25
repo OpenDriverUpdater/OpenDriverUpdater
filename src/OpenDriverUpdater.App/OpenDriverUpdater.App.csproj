@@ -1,9 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
+ 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <ApplicationIcon>Assets\odu_favicon.ico</ApplicationIcon>
     <WindowsSdkPackageVersion>10.0.19041.41</WindowsSdkPackageVersion>
     <UseWinUI>true</UseWinUI>
     <AssemblyName>OpenDriverUpdater</AssemblyName>
@@ -12,28 +13,32 @@
     <Platforms>x64;ARM64</Platforms>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <WindowsPackageType>None</WindowsPackageType>
-    <ApplicationIcon>..\..\img\odu_favicon.ico</ApplicationIcon>
     <SelfContained>true</SelfContained>
     <PublishSingleFile>true</PublishSingleFile>
     <PublishReadyToRun>true</PublishReadyToRun>
     <EnableMsixTooling>true</EnableMsixTooling>
     <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+    <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
   </PropertyGroup>
-
+ 
   <ItemGroup>
     <ProjectReference Include="..\OpenDriverUpdater.Core\OpenDriverUpdater.Core.csproj" />
     <ProjectReference Include="..\OpenDriverUpdater.Infrastructure\OpenDriverUpdater.Infrastructure.csproj" />
   </ItemGroup>
-
+ 
   <ItemGroup>
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.260317003" />
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.4654" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
   </ItemGroup>
-
+ 
   <ItemGroup>
-    <Content Include="..\..\img\odu_favicon.ico" Link="Assets\odu_favicon.ico" CopyToOutputDirectory="PreserveNewest" />
-    <Content Include="..\..\img\logo_odu-removebg.png" Link="Assets\logo_odu.png" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="Assets\odu_favicon.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\logo_odu.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
-
+ 
 </Project>
