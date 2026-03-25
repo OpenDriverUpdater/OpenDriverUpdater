@@ -3,84 +3,74 @@ name: Cross-Platform Build & Test
 on:
   push:
     branches: [ main ]
+    tags: [ 'v*' ]
   pull_request:
     branches: [ main ]
 
 env:
-  # Opt-in to Node.js 24 for GitHub Actions runners to clear deprecation warnings.
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   build_windows:
-    name: Build & Test (Windows)
+    name: Build & Publish (Windows)
     runs-on: windows-latest
-    
     steps:
     - uses: actions/checkout@v4
-    
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
-        
-    - name: Restore necessary projects (Windows)
+    - name: Publish App (Windows)
       run: |
-        dotnet restore src/OpenDriverUpdater.Cli/OpenDriverUpdater.Cli.csproj
-        dotnet restore tests/OpenDriverUpdater.Core.Tests/OpenDriverUpdater.Core.Tests.csproj
-      
-    - name: Build Core, Infrastructure & CLI (Windows)
-      run: |
-        dotnet build src/OpenDriverUpdater.Cli/OpenDriverUpdater.Cli.csproj --configuration Release --no-restore
-        dotnet build tests/OpenDriverUpdater.Core.Tests/OpenDriverUpdater.Core.Tests.csproj --configuration Release --no-restore
-      
-    - name: Run Unit Tests (Windows)
-      run: |
-        dotnet test tests/OpenDriverUpdater.Core.Tests/OpenDriverUpdater.Core.Tests.csproj --configuration Release --no-build --verbosity normal
-
-    - name: Publish CLI (Windows)
-      run: |
-        dotnet publish src/OpenDriverUpdater.Cli/OpenDriverUpdater.Cli.csproj --configuration Release --no-restore --output ./publish/cli-windows
-
-    - name: Upload CLI Artifact (Windows)
+        dotnet publish src/OpenDriverUpdater.App/OpenDriverUpdater.App.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o ./publish/win-app
+    - name: Upload Windows App Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: OpenDriverUpdater-CLI-Windows
-        path: ./publish/cli-windows/
-        retention-days: 7
+        name: OpenDriverUpdater-Windows
+        path: ./publish/win-app/OpenDriverUpdater.exe
 
-  build_linux_verification:
-    name: Build Verification (Linux)
+  build_linux:
+    name: Build & Publish (Linux CLI)
     runs-on: ubuntu-latest
-    
     steps:
     - uses: actions/checkout@v4
-    
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
-        
-    - name: Restore Core & Tests (Linux)
+    - name: Publish CLI (Linux)
       run: |
-        dotnet restore src/OpenDriverUpdater.Core/OpenDriverUpdater.Core.csproj
-        dotnet restore tests/OpenDriverUpdater.Core.Tests/OpenDriverUpdater.Core.Tests.csproj
-        
-    - name: Build & Test Core (Linux)
-      run: |
-        dotnet build tests/OpenDriverUpdater.Core.Tests/OpenDriverUpdater.Core.Tests.csproj --configuration Release
-        dotnet test tests/OpenDriverUpdater.Core.Tests/OpenDriverUpdater.Core.Tests.csproj --configuration Release --no-build
-      
-    - name: Publish Core (Linux)
-      run: |
-        dotnet publish src/OpenDriverUpdater.Core/OpenDriverUpdater.Core.csproj --configuration Release --output ./publish/core-linux
-
-    - name: Upload Core Artifact (Linux Verification)
+        dotnet publish src/OpenDriverUpdater.Cli/OpenDriverUpdater.Cli.csproj -c Release -r linux-x64 --self-contained true -p:PublishSingleFile=true -o ./publish/linux-cli
+    - name: Upload Linux CLI Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: OpenDriverUpdater-Core-Linux
-        path: ./publish/core-linux/
-        retention-days: 1
+        name: OpenDriverUpdater-Linux
+        path: ./publish/linux-cli/OpenDriverUpdater.Cli
 
-    - name: Note on Platform Limitations
-      run: |
-        echo "Note: WinUI 3, WMI, and PnP components (App, Infrastructure, CLI) require Windows and were skipped on this runner."
+  create_release:
+    name: Create GitHub Release
+    needs: [build_windows, build_linux]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download Windows App
+      uses: actions/download-artifact@v4
+      with:
+        name: OpenDriverUpdater-Windows
+        path: ./release-assets/
+    - name: Download Linux CLI
+      uses: actions/download-artifact@v4
+      with:
+        name: OpenDriverUpdater-Linux
+        path: ./release-assets/
+    - name: Create Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: |
+          ./release-assets/OpenDriverUpdater.exe
+          ./release-assets/OpenDriverUpdater.Cli
+        generate_release_notes: true
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
