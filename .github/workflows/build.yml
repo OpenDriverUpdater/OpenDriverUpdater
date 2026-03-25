@@ -45,7 +45,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: OpenDriverUpdater-Linux
-        path: ./publish/linux-cli/OpenDriverUpdater.Cli
+        path: ./publish/linux-cli/odu
 
   create_release:
     name: Create GitHub Release
@@ -68,7 +68,7 @@ jobs:
       with:
         files: |
           ./release-assets/OpenDriverUpdater.exe
-          ./release-assets/OpenDriverUpdater.Cli
+          ./release-assets/odu
         generate_release_notes: true
         draft: false
         prerelease: false
