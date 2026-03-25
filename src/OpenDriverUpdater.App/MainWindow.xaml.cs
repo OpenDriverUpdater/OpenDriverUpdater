@@ -11,7 +11,13 @@ public sealed partial class MainWindow : Window
         this.InitializeComponent();
         this.Title = "OpenDriverUpdater";
 
-        // Varsayılan sayfa
+        // Set Window Icon
+        var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+        var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hWnd);
+        var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
+        appWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "Assets", "odu_favicon.ico"));
+
+        // Default page
         ContentFrame.Navigate(typeof(DashboardPage));
     }
 

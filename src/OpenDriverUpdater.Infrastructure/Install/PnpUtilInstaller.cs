@@ -18,8 +18,11 @@ public sealed class PnpUtilInstaller : IInstaller
     }
 
     public async Task<InstallResult> InstallAsync(
-        DownloadedPackage package, CancellationToken cancellationToken = default)
+        DownloadedPackage package, 
+        IProgress<double>? progress = null,
+        CancellationToken cancellationToken = default)
     {
+        progress?.Report(0);
         if (!File.Exists(package.FilePath))
         {
             return new InstallResult
@@ -66,6 +69,8 @@ public sealed class PnpUtilInstaller : IInstaller
             var success = process.ExitCode == 0;
 
             _logger.Info("pnputil exited with code {Code}. Output: {Output}", process.ExitCode, stdout);
+
+            progress?.Report(1.0);
 
             return new InstallResult
             {

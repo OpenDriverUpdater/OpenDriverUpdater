@@ -9,5 +9,6 @@ public interface IInstaller
 {
     Task<InstallResult> InstallAsync(
         DownloadedPackage package,
+        IProgress<double>? progress = null,
         CancellationToken cancellationToken = default);
 }

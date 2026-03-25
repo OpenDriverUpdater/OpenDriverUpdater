@@ -10,7 +10,7 @@ public partial class UpdatesViewModel : ObservableObject
     [ObservableProperty]
     private bool _isLoading;
 
-    public ObservableCollection<UpdateRecommendation> Recommendations { get; } = [];
+    public ObservableCollection<RecommendationViewModel> Recommendations { get; } = [];
 
     [RelayCommand]
     private async Task CheckAsync()
@@ -24,7 +24,7 @@ public partial class UpdatesViewModel : ObservableObject
             var results = await App.Resolver.ResolveAsync(devices);
 
             foreach (var r in results)
-                Recommendations.Add(r);
+                Recommendations.Add(new RecommendationViewModel(r));
         }
         catch (Exception ex)
         {
@@ -36,26 +36,4 @@ public partial class UpdatesViewModel : ObservableObject
         }
     }
 
-    [RelayCommand]
-    private async Task DownloadAllAsync()
-    {
-        var downloadDir = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "OpenDriverUpdater", "downloads");
-
-        foreach (var rec in Recommendations)
-        {
-            if (rec.Candidate is null) continue;
-
-            try
-            {
-                await App.DownloadManager.DownloadAsync(rec.Candidate, downloadDir);
-                App.Logger.Info("Downloaded: {Title}", rec.Candidate.Title);
-            }
-            catch (Exception ex)
-            {
-                App.Logger.Error("Download failed for {Title}", ex, rec.Candidate.Title);
-            }
-        }
-    }
 }

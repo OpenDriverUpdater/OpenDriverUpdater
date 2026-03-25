@@ -5,9 +5,15 @@
     <!-- Card Style -->
     <Style x:Key="CardStyle" TargetType="Border">
         <Setter Property="Background" Value="{StaticResource SurfaceAltBrush}" />
-        <Setter Property="CornerRadius" Value="8" />
-        <Setter Property="BorderBrush" Value="Transparent" />
-        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="CornerRadius" Value="12" />
+        <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Opacity" Value="0.95" />
+    </Style>
+
+    <!-- Page Content Style -->
+    <Style x:Key="PageContentStyle" TargetType="Grid">
+        <Setter Property="Background" Value="{StaticResource SurfaceBrush}" />
     </Style>
 
 </ResourceDictionary>

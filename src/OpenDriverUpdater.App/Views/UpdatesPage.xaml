@@ -8,7 +8,7 @@
         <vm:UpdatesViewModel />
     </Page.DataContext>
 
-    <Grid Padding="32" RowSpacing="16">
+    <Grid Padding="32" RowSpacing="16" Background="{StaticResource SurfaceBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -18,30 +18,43 @@
         <TextBlock Grid.Row="0" Text="Available Updates" Style="{StaticResource TitleTextBlockStyle}" />
 
         <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="12">
-            <Button Content="Check Updates" Command="{Binding CheckCommand}" Style="{StaticResource AccentButtonStyle}" />
-            <Button Content="Download All" Command="{Binding DownloadAllCommand}" />
+            <Button Content="Check for Updates" Command="{Binding CheckCommand}" Style="{StaticResource AccentButtonStyle}" Padding="24,12" />
             <ProgressRing IsActive="{Binding IsLoading}" Width="24" Height="24" />
         </StackPanel>
 
-        <ListView Grid.Row="2" ItemsSource="{Binding Recommendations}" SelectionMode="None">
+        <ListView Grid.Row="2" ItemsSource="{Binding Recommendations}" SelectionMode="None" Margin="0,16,0,0">
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <Border Style="{StaticResource CardStyle}" Margin="0,4" Padding="16">
-                        <Grid ColumnSpacing="16">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="120" />
-                                <ColumnDefinition Width="120" />
-                                <ColumnDefinition Width="100" />
-                                <ColumnDefinition Width="100" />
-                            </Grid.ColumnDefinitions>
+                    <Border Style="{StaticResource CardStyle}" Margin="0,8" Padding="20">
+                        <StackPanel Spacing="12">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
 
-                            <TextBlock Grid.Column="0" Text="{Binding DeviceId}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                            <TextBlock Grid.Column="1" Text="{Binding InstalledVersion}" VerticalAlignment="Center" Opacity="0.6" />
-                            <TextBlock Grid.Column="2" Text="{Binding CandidateVersion}" VerticalAlignment="Center" Foreground="{StaticResource AccentBrush}" FontWeight="SemiBold" />
-                            <TextBlock Grid.Column="3" Text="{Binding RecommendationType}" VerticalAlignment="Center" />
-                            <TextBlock Grid.Column="4" Text="{Binding TrustScore.Level}" VerticalAlignment="Center" />
-                        </Grid>
+                                <StackPanel Grid.Column="0" Spacing="4">
+                                    <TextBlock Text="{Binding DeviceName}" FontWeight="Bold" FontSize="16" />
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <TextBlock Text="{Binding Recommendation.InstalledVersion}" Opacity="0.6" />
+                                        <FontIcon Glyph="&#xE72A;" FontSize="12" Opacity="0.4" VerticalAlignment="Center" />
+                                        <TextBlock Text="{Binding Recommendation.CandidateVersion}" Foreground="{StaticResource AccentBrush}" FontWeight="SemiBold" />
+                                    </StackPanel>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Orientation="Horizontal" Spacing="12">
+                                    <TextBlock Text="{Binding Status}" VerticalAlignment="Center" Opacity="0.8" FontWeight="SemiBold" />
+                                    <Button Content="Install" Command="{Binding InstallCommand}" 
+                                            Visibility="{Binding IsCompleted, Converter={StaticResource BoolToInvertedVisibilityConverter}}" 
+                                            IsEnabled="{Binding IsBusy, Converter={StaticResource BoolToInvertedVisibilityConverter}}" />
+                                    <FontIcon Glyph="&#xE73E;" Foreground="{StaticResource SuccessBrush}" 
+                                              Visibility="{Binding IsCompleted, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                </StackPanel>
+                            </Grid>
+
+                            <ProgressBar Value="{Binding Progress}" Maximum="100" 
+                                         Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibilityConverter}}" />
+                        </StackPanel>
                     </Border>
                 </DataTemplate>
             </ListView.ItemTemplate>

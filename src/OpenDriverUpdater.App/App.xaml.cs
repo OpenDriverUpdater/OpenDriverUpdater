@@ -18,10 +18,12 @@ public partial class App : Application
     public static IHardwareScanner Scanner { get; private set; } = null!;
     public static IDriverResolver Resolver { get; private set; } = null!;
     public static IDownloadManager DownloadManager { get; private set; } = null!;
+    public static IInstaller Installer { get; private set; } = null!;
     public static IMetadataStore MetadataStore { get; private set; } = null!;
 
     public App()
     {
+        Environment.SetEnvironmentVariable("MICROSOFT_WINDOWSAPPRUNTIME_BASE_DIRECTORY", AppContext.BaseDirectory);
         this.InitializeComponent();
     }
 
@@ -58,5 +60,6 @@ public partial class App : Application
         Resolver = new DriverResolverService(sources, versionComparer, trustEvaluator, Logger);
         MetadataStore = new JsonMetadataStore(dataDir, Logger);
         DownloadManager = new HttpDownloadManager(httpClient, Logger);
+        Installer = new OpenDriverUpdater.Infrastructure.Install.PnpUtilInstaller(Logger);
     }
 }

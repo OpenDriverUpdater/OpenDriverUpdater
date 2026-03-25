@@ -15,6 +15,12 @@ public partial class DashboardViewModel : ObservableObject
     private string _lastScanText = "Never";
 
     [ObservableProperty]
+    private string _systemHealthStatus = "Unknown";
+
+    [ObservableProperty]
+    private string _statusBrush = "TextBrush";
+
+    [ObservableProperty]
     private string? _statusMessage;
 
     [ObservableProperty]
@@ -31,6 +37,9 @@ public partial class DashboardViewModel : ObservableObject
             var devices = await App.Scanner.ScanAsync();
             DeviceCount = devices.Count;
             LastScanText = DateTime.Now.ToString("HH:mm:ss");
+            
+            SystemHealthStatus = "Healthy";
+            StatusBrush = "SuccessBrush";
             StatusMessage = $"Scan completed — {devices.Count} devices found.";
         }
         catch (Exception ex)
@@ -55,6 +64,18 @@ public partial class DashboardViewModel : ObservableObject
             var devices = await App.Scanner.ScanAsync();
             var recommendations = await App.Resolver.ResolveAsync(devices);
             UpdateCount = recommendations.Count;
+            
+            if (UpdateCount > 0)
+            {
+                SystemHealthStatus = "Updates Available";
+                StatusBrush = "WarningBrush";
+            }
+            else
+            {
+                SystemHealthStatus = "Healthy";
+                StatusBrush = "SuccessBrush";
+            }
+
             StatusMessage = $"Found {recommendations.Count} updates.";
         }
         catch (Exception ex)

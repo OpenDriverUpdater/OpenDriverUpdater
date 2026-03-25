@@ -5,7 +5,7 @@
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     Title="OpenDriverUpdater">
 
-    <Grid>
+    <Grid Background="{StaticResource SurfaceBrush}" RequestedTheme="Dark">
         <muxc:NavigationView
             x:Name="NavView"
             IsBackButtonVisible="Collapsed"
@@ -20,7 +20,7 @@
                 <muxc:NavigationViewItem Content="Logs" Tag="Logs" Icon="List" />
             </muxc:NavigationView.MenuItems>
 
-            <Frame x:Name="ContentFrame" />
+            <Frame x:Name="ContentFrame" Background="{StaticResource SurfaceBrush}" />
 
         </muxc:NavigationView>
     </Grid>

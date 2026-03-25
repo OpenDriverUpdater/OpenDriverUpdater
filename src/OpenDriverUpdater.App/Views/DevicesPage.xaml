@@ -22,26 +22,39 @@
             <ProgressRing IsActive="{Binding IsLoading}" Width="24" Height="24" />
         </StackPanel>
 
-        <ListView Grid.Row="2" ItemsSource="{Binding Devices}" SelectionMode="None">
+        <ListView Grid.Row="2" ItemsSource="{Binding Devices}" SelectionMode="None" Margin="0,16,0,0">
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <Border Style="{StaticResource CardStyle}" Margin="0,4" Padding="16">
-                        <Grid ColumnSpacing="16">
+                        <Grid ColumnSpacing="20">
                             <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="120" />
                                 <ColumnDefinition Width="150" />
+                                <ColumnDefinition Width="160" />
                                 <ColumnDefinition Width="140" />
                             </Grid.ColumnDefinitions>
 
-                            <StackPanel Grid.Column="0" Spacing="4">
-                                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
-                                <TextBlock Text="{Binding Manufacturer}" Opacity="0.6" FontSize="12" />
+                            <!-- Icon Wrapper -->
+                            <Border Grid.Column="0" Width="40" Height="40" CornerRadius="20" Background="{StaticResource SurfaceBrush}" VerticalAlignment="Center">
+                                <FontIcon Glyph="{Binding Class, Converter={StaticResource DeviceClassToIconConverter}}" 
+                                          FontFamily="{StaticResource SymbolThemeFontFamily}" FontSize="18" Opacity="0.8" />
+                            </Border>
+
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                                <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="14" TextTrimming="CharacterEllipsis" />
+                                <TextBlock Text="{Binding Manufacturer}" Opacity="0.5" FontSize="11" />
                             </StackPanel>
 
-                            <TextBlock Grid.Column="1" Text="{Binding Class}" VerticalAlignment="Center" />
-                            <TextBlock Grid.Column="2" Text="{Binding InstalledDriverVersion}" VerticalAlignment="Center" Foreground="{StaticResource AccentBrush}" />
-                            <TextBlock Grid.Column="3" Text="{Binding InstalledProvider}" VerticalAlignment="Center" Opacity="0.6" />
+                            <TextBlock Grid.Column="2" Text="{Binding Class}" VerticalAlignment="Center" Opacity="0.7" FontSize="13" />
+                            <StackPanel Grid.Column="3" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding InstalledDriverVersion}" FontSize="13" />
+                                <TextBlock Text="Version" FontSize="10" Opacity="0.4" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="4" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding InstalledProvider}" FontSize="13" Opacity="0.8" />
+                                <TextBlock Text="Provider" FontSize="10" Opacity="0.4" />
+                            </StackPanel>
                         </Grid>
                     </Border>
                 </DataTemplate>

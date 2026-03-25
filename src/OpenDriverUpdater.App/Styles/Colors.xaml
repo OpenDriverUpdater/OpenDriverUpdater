@@ -3,14 +3,14 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <!-- Primary Palette -->
-    <Color x:Key="OduPrimary">#0078D4</Color>
-    <Color x:Key="OduAccent">#00B4D8</Color>
-    <Color x:Key="OduSurface">#1E1E2E</Color>
-    <Color x:Key="OduSurfaceAlt">#2A2A3E</Color>
-    <Color x:Key="OduText">#E0E0E0</Color>
-    <Color x:Key="OduSuccess">#4ADE80</Color>
-    <Color x:Key="OduWarning">#FBBF24</Color>
-    <Color x:Key="OduDanger">#F87171</Color>
+    <Color x:Key="OduPrimary">#0863D5</Color>
+    <Color x:Key="OduAccent">#2C8BCD</Color>
+    <Color x:Key="OduSurface">#0D1625</Color>
+    <Color x:Key="OduSurfaceAlt">#0A376C</Color>
+    <Color x:Key="OduText">#B6D7F0</Color>
+    <Color x:Key="OduSuccess">#81BA6C</Color>
+    <Color x:Key="OduWarning">#35B2CD</Color>
+    <Color x:Key="OduDanger">#F43F5E</Color>
 
     <!-- Brushes -->
     <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource OduPrimary}" />

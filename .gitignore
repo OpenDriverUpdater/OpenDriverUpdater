@@ -3,6 +3,8 @@
 [Oo]bj/
 [Ll]og/
 [Ll]ogs/
+dist/
+*.pfx
 
 ## IDE
 .vs/
