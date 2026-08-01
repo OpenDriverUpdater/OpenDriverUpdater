@@ -39,6 +39,15 @@ public sealed class DriverResolverService : IDriverResolver
     private static bool IsUpdatableDevice(DeviceInfo device) =>
         device.HardwareIds.Any(id =>
             UpdatablePrefixes.Any(p => id.StartsWith(p, StringComparison.OrdinalIgnoreCase)));
+    // WMI bazı aygıtlar için sürüm bildirmez. Bu iki durumu ayırmak gerekir:
+    //   (a) hiç sürücü yok  → aday sürücü önerilmeli
+    //   (b) sürücü var ama sürümü bildirilmemiş → karşılaştırılamaz, önerilmemeli
+    // Ayrım için sağlayıcı/tarih alanları kullanılır: sürücüsüz aygıtta
+    // hiçbiri dolu değildir.
+    private static bool HasNoDriverInstalled(DeviceInfo device) =>
+        string.IsNullOrWhiteSpace(device.InstalledDriverVersion) &&
+        string.IsNullOrWhiteSpace(device.InstalledProvider) &&
+        device.InstalledDriverDate is null;
 
     public async Task<IReadOnlyList<UpdateRecommendation>> ResolveAsync(
         IReadOnlyList<DeviceInfo> devices,
@@ -97,19 +106,31 @@ public sealed class DriverResolverService : IDriverResolver
         // en iyisi öneri olur, kalanlar indirme çözümlemesi başarısız olursa
         // denenecek yedeklerdir (Catalog'da aynı sürücünün indirilebilir ve
         // indirilemez kopyaları bir arada bulunabiliyor).
-        var acceptable = new List<(CandidateDriver Candidate, TrustScore Trust, string Delta)>();
+        var acceptable = new List<(CandidateDriver Candidate, TrustScore Trust, string? Delta)>();
 
         foreach (var candidate in candidates)
         {
-            var versionResult = _versionComparer.Compare(device.InstalledDriverVersion, candidate.Version);
-            if (!versionResult.IsNewer)
-                continue;
+            var noDriver = HasNoDriverInstalled(device);
+
+            string? delta;
+            if (noDriver)
+            {
+                delta = "No driver installed";
+            }
+            else
+            {
+                var versionResult = _versionComparer.Compare(device.InstalledDriverVersion, candidate.Version);
+                if (!versionResult.IsNewer)
+                    continue;
+
+                delta = versionResult.Delta;
+            }
 
             var trust = _trustEvaluator.Evaluate(candidate, device);
             if (trust.Level == TrustLevel.Blacklisted)
                 continue;
 
-            acceptable.Add((candidate, trust, versionResult.Delta));
+            acceptable.Add((candidate, trust, delta));
         }
 
         if (acceptable.Count == 0)
@@ -125,7 +146,7 @@ public sealed class DriverResolverService : IDriverResolver
             CandidateVersion = best.Candidate.Version,
             RecommendationType = ClassifyRecommendation(best.Trust, best.Candidate),
             TrustScore = best.Trust,
-            Reason = $"Newer driver from {best.Candidate.SourceType}: {best.Delta}",
+            Reason = $"{best.Candidate.SourceType}: {best.Delta}",
             Candidate = best.Candidate,
             Alternates = ordered.Skip(1).Select(a => a.Candidate).ToList()
         };
