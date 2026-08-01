@@ -35,13 +35,44 @@ public partial class RecommendationViewModel : ObservableObject
     [RelayCommand]
     private async Task InstallAsync()
     {
-        if (IsBusy || IsCompleted || _recommendation.Candidate == null) return;
+        if (IsBusy || IsCompleted || _recommendation.Candidate is not { } candidate) return;
 
         try
         {
             IsBusy = true;
             HasError = false;
-            
+
+            // 0. İndirme URL'sini çözümle — birincil aday başarısız olursa
+            //    yedek adayları dene (Catalog'da indirilemeyen kopyalar var).
+            if (string.IsNullOrEmpty(candidate.DownloadUrl))
+            {
+                Status = "Resolving download...";
+                foreach (var attempt in new[] { candidate }.Concat(_recommendation.Alternates))
+                {
+                    if (string.IsNullOrEmpty(attempt.SourceReference))
+                        continue;
+
+                    var source = App.DriverSources.FirstOrDefault(s => s.SourceType == attempt.SourceType);
+                    if (source is null)
+                        continue;
+
+                    var url = await source.ResolveDownloadUrlAsync(attempt.SourceReference);
+                    if (!string.IsNullOrEmpty(url))
+                    {
+                        attempt.DownloadUrl = url;
+                        candidate = attempt;
+                        break;
+                    }
+                }
+            }
+
+            if (string.IsNullOrEmpty(candidate.DownloadUrl))
+            {
+                Status = "Failed: No downloadable file for this driver";
+                HasError = true;
+                return;
+            }
+
             // 1. Download
             Status = "Downloading...";
             var downloadDir = Path.Combine(
@@ -49,7 +80,7 @@ public partial class RecommendationViewModel : ObservableObject
                 "OpenDriverUpdater", "downloads");
 
             var progressHandler = new Progress<double>(p => Progress = p * 100);
-            var package = await App.DownloadManager.DownloadAsync(_recommendation.Candidate, downloadDir, progressHandler);
+            var package = await App.DownloadManager.DownloadAsync(candidate, downloadDir, progressHandler);
 
             // 2. Install
             Status = "Installing...";

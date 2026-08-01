@@ -9,7 +9,7 @@ public sealed partial class MainWindow : Window
     public MainWindow()
     {
         this.InitializeComponent();
-        this.Title = "OpenDriverUpdater";
+        Title = $"{AppInfo.DisplayName} {AppInfo.VersionLabel}";
 
         // Set Window Icon
         var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);

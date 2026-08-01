@@ -61,7 +61,7 @@ public sealed class WmiHardwareScanner : IHardwareScanner
             _logger.Error("WMI scan failed", ex);
         }
 #else
-        _logger.Warning("WmiHardwareScanner is not supported on this platform.");
+        _logger.Warn("WmiHardwareScanner is not supported on this platform.");
 #endif
 
         return Task.FromResult<IReadOnlyList<DeviceInfo>>(devices);

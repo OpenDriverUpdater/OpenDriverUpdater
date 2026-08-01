@@ -20,6 +20,7 @@ public partial class App : Application
     public static IDownloadManager DownloadManager { get; private set; } = null!;
     public static IInstaller Installer { get; private set; } = null!;
     public static IMetadataStore MetadataStore { get; private set; } = null!;
+    public static IReadOnlyList<IDriverSource> DriverSources { get; private set; } = null!;
 
     public App()
     {
@@ -44,6 +45,16 @@ public partial class App : Application
         Logger = new SerilogLoggerService(logDir);
 
         var httpClient = new HttpClient();
+
+        var downloadClient = new HttpClient(new SocketsHttpHandler
+        {
+            PooledConnectionLifetime = TimeSpan.FromMinutes(2),
+            PooledConnectionIdleTimeout = TimeSpan.FromSeconds(30),
+        })
+        {
+            Timeout = TimeSpan.FromMinutes(10),
+        };
+
         Scanner = new WmiHardwareScanner(Logger);
 
         IDriverSource[] sources =
@@ -54,12 +65,14 @@ public partial class App : Application
             new NvidiaDriverSource(Logger)
         ];
 
+        DriverSources = sources;
+
         var versionComparer = new VersionComparerService();
         var trustEvaluator = new TrustEvaluatorService();
 
         Resolver = new DriverResolverService(sources, versionComparer, trustEvaluator, Logger);
         MetadataStore = new JsonMetadataStore(dataDir, Logger);
-        DownloadManager = new HttpDownloadManager(httpClient, Logger);
+        DownloadManager = new HttpDownloadManager(downloadClient, Logger);
         Installer = new OpenDriverUpdater.Infrastructure.Install.PnpUtilInstaller(Logger);
     }
 }

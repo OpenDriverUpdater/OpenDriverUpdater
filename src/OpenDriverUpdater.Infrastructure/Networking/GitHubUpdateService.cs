@@ -93,7 +93,7 @@ public sealed class GitHubUpdateService : IGitHubUpdateService
                 var actualMd5 = await CalculateMd5Async(destinationPath, ct);
                 if (!string.Equals(actualMd5, asset.ExpectedMd5, StringComparison.OrdinalIgnoreCase))
                 {
-                    _logger.Error("MD5 mismatch! Expected: {Expected}, Actual: {Actual}", asset.ExpectedMd5, actualMd5);
+                    _logger.Error($"MD5 verification failed for {asset.Name}. Expected: {asset.ExpectedMd5}, Actual: {actualMd5}");
                     File.Delete(destinationPath);
                     return false;
                 }
@@ -101,7 +101,7 @@ public sealed class GitHubUpdateService : IGitHubUpdateService
             }
             else
             {
-                _logger.Warning("No MD5 hash provided for verification. Proceeding with caution.");
+                _logger.Warn("No MD5 hash provided for verification. Proceeding with caution.");
             }
 
             return true;

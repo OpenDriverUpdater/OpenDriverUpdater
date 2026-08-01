@@ -4,35 +4,35 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:vm="using:OpenDriverUpdater.App.ViewModels">
 
-    <Page.DataContext>
-        <vm:SettingsViewModel />
-    </Page.DataContext>
+	<Page.DataContext>
+		<vm:SettingsViewModel />
+	</Page.DataContext>
 
-    <ScrollViewer Padding="32">
-        <StackPanel Spacing="24" MaxWidth="600">
-            <TextBlock Text="Settings" Style="{StaticResource TitleTextBlockStyle}" />
+	<ScrollViewer Padding="32">
+		<StackPanel Spacing="24" MaxWidth="600">
+			<TextBlock Text="Settings" Style="{StaticResource TitleTextBlockStyle}" />
 
-            <!-- Source Priorities -->
-            <StackPanel Spacing="8">
-                <TextBlock Text="Driver Source Priorities" Style="{StaticResource SubtitleTextBlockStyle}" />
-                <ToggleSwitch Header="Microsoft Update Catalog" IsOn="{Binding MicrosoftCatalogEnabled, Mode=TwoWay}" />
-                <ToggleSwitch Header="Intel" IsOn="{Binding IntelEnabled, Mode=TwoWay}" />
-                <ToggleSwitch Header="AMD" IsOn="{Binding AmdEnabled, Mode=TwoWay}" />
-                <ToggleSwitch Header="NVIDIA" IsOn="{Binding NvidiaEnabled, Mode=TwoWay}" />
-            </StackPanel>
+			<!-- Source Priorities -->
+			<StackPanel Spacing="8">
+				<TextBlock Text="Driver Source Priorities" Style="{StaticResource SubtitleTextBlockStyle}" />
+				<ToggleSwitch Header="Microsoft Update Catalog" IsOn="{Binding MicrosoftCatalogEnabled, Mode=TwoWay}" />
+				<ToggleSwitch Header="Intel" IsOn="{Binding IntelEnabled, Mode=TwoWay}" />
+				<ToggleSwitch Header="AMD" IsOn="{Binding AmdEnabled, Mode=TwoWay}" />
+				<ToggleSwitch Header="NVIDIA" IsOn="{Binding NvidiaEnabled, Mode=TwoWay}" />
+			</StackPanel>
 
-            <!-- Cache -->
-            <StackPanel Spacing="8">
-                <TextBlock Text="Cache" Style="{StaticResource SubtitleTextBlockStyle}" />
-                <Button Content="Clear Cache" Command="{Binding ClearCacheCommand}" />
-            </StackPanel>
+			<!-- Cache -->
+			<StackPanel Spacing="8">
+				<TextBlock Text="Cache" Style="{StaticResource SubtitleTextBlockStyle}" />
+				<Button Content="Clear Cache" Command="{Binding ClearCacheCommand}" />
+			</StackPanel>
 
-            <!-- About -->
-            <StackPanel Spacing="4">
-                <TextBlock Text="About" Style="{StaticResource SubtitleTextBlockStyle}" />
-                <TextBlock Text="OpenDriverUpdater v1.0.0" Opacity="0.6" />
-                <TextBlock Text="MIT License — Open Source" Opacity="0.4" />
-            </StackPanel>
-        </StackPanel>
-    </ScrollViewer>
+			<!-- About -->
+			<StackPanel Spacing="4">
+				<TextBlock Text="About" Style="{StaticResource SubtitleTextBlockStyle}" />
+				<TextBlock x:Name="VersionText" Opacity="0.6" />
+				<TextBlock Text="MIT License — Open Source" Opacity="0.4" />
+			</StackPanel>
+		</StackPanel>
+	</ScrollViewer>
 </Page>

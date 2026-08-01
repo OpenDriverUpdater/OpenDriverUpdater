@@ -25,4 +25,6 @@ public sealed class AmdDriverSource : IDriverSource
         _logger.Debug("AMD source is a stub — returning empty results for {Device}", device.Name);
         return Task.FromResult<IReadOnlyList<CandidateDriver>>([]);
     }
+    public Task<string?> ResolveDownloadUrlAsync(string sourceReference, CancellationToken cancellationToken = default)
+        => Task.FromResult<string?>(null);
 }

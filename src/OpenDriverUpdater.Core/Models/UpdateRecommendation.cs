@@ -14,4 +14,7 @@ public sealed class UpdateRecommendation
     public TrustScore? TrustScore { get; set; }
     public string? Reason { get; set; }
     public CandidateDriver? Candidate { get; set; }
+
+    /// <summary>Birincil aday çözümlenemezse denenecek yedek adaylar (güven puanına göre sıralı).</summary>
+    public IReadOnlyList<CandidateDriver> Alternates { get; set; } = [];
 }

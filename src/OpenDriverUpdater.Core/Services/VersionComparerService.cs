@@ -21,29 +21,33 @@ public sealed class VersionComparerService : IVersionComparer
             };
         }
 
+        // Yüklü sürüm bilinmiyorsa güncelleme ÖNERME: "bilinmeyen" durumda
+        // rastgele sürücü yüklemek, hiç dokunmamaktan daha riskli.
         if (string.IsNullOrWhiteSpace(installedVersion))
         {
             return new VersionComparisonResult
             {
-                IsNewer = true,
+                IsNewer = false,
                 InstalledVersion = installedVersion,
                 CandidateVersion = candidateVersion,
-                Delta = "No installed version found"
+                Delta = "Installed version unknown — not recommending"
             };
         }
 
         var installed = NormalizeVersion(installedVersion);
         var candidate = NormalizeVersion(candidateVersion);
 
+        // Herhangi biri sürüm olarak çözümlenemiyorsa karşılaştırma yapılamaz.
+        // Alfabetik karşılaştırma anlamsız sonuç verir ("n/a" > "10.0..." gibi) —
+        // güvenli varsayılan: önerme.
         if (installed is null || candidate is null)
         {
-            var cmp = string.Compare(installedVersion, candidateVersion, StringComparison.OrdinalIgnoreCase);
             return new VersionComparisonResult
             {
-                IsNewer = cmp < 0,
+                IsNewer = false,
                 InstalledVersion = installedVersion,
                 CandidateVersion = candidateVersion,
-                Delta = cmp < 0 ? "Newer (string comparison)" : "Same or older"
+                Delta = "Version not comparable"
             };
         }
 

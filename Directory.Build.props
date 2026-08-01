@@ -1,5 +1,8 @@
 <Project>
   <PropertyGroup>
+	<VersionPrefix>0.2.0</VersionPrefix>
+	<Company>OpenDriverUpdater</Company>
+	<Product>OpenDriverUpdater</Product>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>

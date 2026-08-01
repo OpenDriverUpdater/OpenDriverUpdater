@@ -26,6 +26,20 @@ public sealed class DriverResolverService : IDriverResolver
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
+    // Sadece gerçek donanım aygıtları güncellenebilir — sanal/yazılım aygıtları
+    // (ACPI, ROOT, SWD, STORAGE, BTHLE vb.) sürücü güncellemesi almaz ve
+    // Catalog'un serbest metin araması bunlar için yanlış eşleşmeler döndürür.
+    private static readonly string[] UpdatablePrefixes =
+    [
+        @"PCI\VEN_",
+        @"USB\VID_",
+        @"HDAUDIO\",
+    ];
+
+    private static bool IsUpdatableDevice(DeviceInfo device) =>
+        device.HardwareIds.Any(id =>
+            UpdatablePrefixes.Any(p => id.StartsWith(p, StringComparison.OrdinalIgnoreCase)));
+
     public async Task<IReadOnlyList<UpdateRecommendation>> ResolveAsync(
         IReadOnlyList<DeviceInfo> devices,
         CancellationToken cancellationToken = default)
@@ -35,6 +49,12 @@ public sealed class DriverResolverService : IDriverResolver
         foreach (var device in devices)
         {
             cancellationToken.ThrowIfCancellationRequested();
+
+            if (!IsUpdatableDevice(device))
+            {
+                _logger.Debug("Skipping non-updatable device {Device}", device.Name);
+                continue;
+            }
 
             _logger.Info("Resolving drivers for {DeviceName} ({DeviceId})", device.Name, device.Id);
 
@@ -73,38 +93,42 @@ public sealed class DriverResolverService : IDriverResolver
 
     private UpdateRecommendation? SelectBestCandidate(DeviceInfo device, List<CandidateDriver> candidates)
     {
-        UpdateRecommendation? bestRecommendation = null;
+        // Kabul edilebilir tüm adayları topla, güven puanına göre sırala:
+        // en iyisi öneri olur, kalanlar indirme çözümlemesi başarısız olursa
+        // denenecek yedeklerdir (Catalog'da aynı sürücünün indirilebilir ve
+        // indirilemez kopyaları bir arada bulunabiliyor).
+        var acceptable = new List<(CandidateDriver Candidate, TrustScore Trust, string Delta)>();
 
         foreach (var candidate in candidates)
         {
             var versionResult = _versionComparer.Compare(device.InstalledDriverVersion, candidate.Version);
-
             if (!versionResult.IsNewer)
                 continue;
 
             var trust = _trustEvaluator.Evaluate(candidate, device);
-
             if (trust.Level == TrustLevel.Blacklisted)
                 continue;
 
-            var recommendation = new UpdateRecommendation
-            {
-                DeviceId = device.Id,
-                InstalledVersion = device.InstalledDriverVersion,
-                CandidateVersion = candidate.Version,
-                RecommendationType = ClassifyRecommendation(trust, candidate),
-                TrustScore = trust,
-                Reason = $"Newer driver from {candidate.SourceType}: {versionResult.Delta}",
-                Candidate = candidate
-            };
-
-            if (bestRecommendation is null || trust.Points > (bestRecommendation.TrustScore?.Points ?? 0))
-            {
-                bestRecommendation = recommendation;
-            }
+            acceptable.Add((candidate, trust, versionResult.Delta));
         }
 
-        return bestRecommendation;
+        if (acceptable.Count == 0)
+            return null;
+
+        var ordered = acceptable.OrderByDescending(a => a.Trust.Points).ToList();
+        var best = ordered[0];
+
+        return new UpdateRecommendation
+        {
+            DeviceId = device.Id,
+            InstalledVersion = device.InstalledDriverVersion,
+            CandidateVersion = best.Candidate.Version,
+            RecommendationType = ClassifyRecommendation(best.Trust, best.Candidate),
+            TrustScore = best.Trust,
+            Reason = $"Newer driver from {best.Candidate.SourceType}: {best.Delta}",
+            Candidate = best.Candidate,
+            Alternates = ordered.Skip(1).Select(a => a.Candidate).ToList()
+        };
     }
 
     private static RecommendationType ClassifyRecommendation(TrustScore trust, CandidateDriver candidate)
