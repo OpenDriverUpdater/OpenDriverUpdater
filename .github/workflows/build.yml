@@ -40,7 +40,7 @@ jobs:
         dotnet-version: 8.0.x
     - name: Publish CLI (Linux)
       run: |
-        dotnet publish src/OpenDriverUpdater.Cli/OpenDriverUpdater.Cli.csproj -c Release -r linux-x64 --self-contained true -p:PublishSingleFile=true -o ./publish/linux-cli
+        dotnet publish src/OpenDriverUpdater.Cli/OpenDriverUpdater.Cli.csproj -c Release -f net8.0 -r linux-x64 --self-contained true -p:PublishSingleFile=true -o ./publish/linux-cli
     - name: Upload Linux CLI Artifact
       uses: actions/upload-artifact@v4
       with:
