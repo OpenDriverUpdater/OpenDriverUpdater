@@ -25,4 +25,7 @@ public sealed class NvidiaDriverSource : IDriverSource
         _logger.Debug("NVIDIA source is a stub — returning empty results for {Device}", device.Name);
         return Task.FromResult<IReadOnlyList<CandidateDriver>>([]);
     }
+
+    public Task<string?> ResolveDownloadUrlAsync(string sourceReference, CancellationToken cancellationToken = default)
+        => Task.FromResult<string?>(null);
 }

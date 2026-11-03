@@ -18,4 +18,10 @@ public sealed class CandidateDriver
     public IReadOnlyList<string> SupportedHardwareIds { get; set; } = [];
 
     public override string ToString() => $"{Title} v{Version} ({SourceType})";
+
+    /// <summary>Kaynağa özgü referans (ör. Microsoft Catalog update GUID) — indirme URL çözümlemesi için.</summary>
+    public string? SourceReference { get; set; }
+
+    /// <summary>İndirme boyutu (bayt), biliniyorsa.</summary>
+    public long? SizeBytes { get; set; }
 }

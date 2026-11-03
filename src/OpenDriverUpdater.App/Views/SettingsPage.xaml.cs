@@ -7,5 +7,6 @@ public sealed partial class SettingsPage : Page
     public SettingsPage()
     {
         this.InitializeComponent();
+        VersionText.Text = $"{AppInfo.DisplayName} {AppInfo.VersionLabel}";
     }
 }
