@@ -28,3 +28,10 @@ Web/
 *.bak
 *.swp
 ~$*
+
+## CMake & Native Builds
+[Bb]uild/
+out/
+target/
+CMakeSettings.json
+

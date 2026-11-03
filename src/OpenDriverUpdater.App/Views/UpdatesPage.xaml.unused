@@ -1,0 +1,8 @@
+<Page
+    x:Class="OpenDriverUpdater.App.Views.UpdatesPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid>
+        <TextBlock Text="Updates" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" />
+    </Grid>
+</Page>
