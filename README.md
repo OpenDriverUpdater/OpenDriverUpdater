@@ -100,7 +100,7 @@ dotnet test
 - Microsoft Catalog integration
 - Native WinUI 3 & CLI interfaces
 
-### Phase 2 (Intelligence & Utility) 🛠️
+### Phase 2 (Intelligence & Utility) 🛠️ ✅
 - **Noise Reduction**: Implement filters for Microsoft generic devices and ACPI system spam.
 - **Smart Grouping**: Group duplicate entries (e.g., multi-core processors) to provide a cleaner view.
 - **Improved Categorization**: Refine `DeviceClass` detection to reduce "Unknown" entries for standard components.
