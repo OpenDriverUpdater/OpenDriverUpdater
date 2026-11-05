@@ -11,7 +11,7 @@ The Driver Updater Windows Actually Needs.
 
 ## 📸 Preview
 
-![OpenDriverUpdater Preview](./docs/odu_app_screenshot.png)
+![OpenDriverUpdater Preview](./docs/630105071-3f859a3f-bd48-40b7-8a7d-ab79fffbe97a.png)
 
 *Modern WinUI 3 Dashboard and CLI interface.*
 
