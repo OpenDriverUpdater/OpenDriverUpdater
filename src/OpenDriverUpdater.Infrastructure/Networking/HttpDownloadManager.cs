@@ -109,61 +109,80 @@ public sealed class HttpDownloadManager : IDownloadManager
         // Diskte kısmi dosya varsa kaldığı yerden devam etmeyi dene.
         var existingBytes = File.Exists(filePath) ? new FileInfo(filePath).Length : 0;
 
-        using var request = new HttpRequestMessage(HttpMethod.Get, url);
-        if (existingBytes > 0)
-        {
-            request.Headers.Range = new RangeHeaderValue(existingBytes, null);
-            _logger.Debug("Resuming download at byte {Offset}", existingBytes);
-        }
+        HttpResponseMessage response;
+        HttpRequestMessage request;
+        bool retryWithoutRange = false;
 
-        using var response = await _httpClient.SendAsync(
-            request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
-
-        // Handle 416 Range Not Satisfiable – server cannot resume, start over
-        if (response.StatusCode == HttpStatusCode.RequestedRangeNotSatisfiable)
+        do
         {
-            if (File.Exists(filePath))
-                File.Delete(filePath);
-            _logger.Warn("Server returned 416 Range Not Satisfiable for {Url}, resetting download", url);
-            throw new HttpRequestException("Range Not Satisfiable – resetting download");
-        }
+            request = new HttpRequestMessage(HttpMethod.Get, url);
+            if (existingBytes > 0 && !retryWithoutRange)
+            {
+                request.Headers.Range = new RangeHeaderValue(existingBytes, null);
+                _logger.Debug("Resuming download at byte {Offset}", existingBytes);
+            }
+
+            response = await _httpClient.SendAsync(
+                request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+
+            // Handle 416 Range Not Satisfiable – server cannot resume, start over
+            if (response.StatusCode == HttpStatusCode.RequestedRangeNotSatisfiable)
+            {
+                response.Dispose();
+                if (File.Exists(filePath))
+                    File.Delete(filePath);
+                _logger.Warn("Server returned 416 Range Not Satisfiable for {Url}, resetting download", url);
+                existingBytes = 0;
+                retryWithoutRange = true;
+                continue;
+            }
+
+            break;
+        } while (true);
 
         // Sunucu Range'i yok saydıysa (206 yerine 200) baştan başla.
         var resuming = response.StatusCode == HttpStatusCode.PartialContent && existingBytes > 0;
         if (!resuming)
             existingBytes = 0;
 
-        response.EnsureSuccessStatusCode();
-
-        var totalBytes = response.Content.Headers.ContentRange?.Length
-                         ?? (response.Content.Headers.ContentLength is { } len ? existingBytes + len : -1);
-
-        var bytesRead = existingBytes;
-
-        await using var contentStream = await response.Content.ReadAsStreamAsync(cancellationToken);
-        await using var fileStream = new FileStream(
-            filePath,
-            resuming ? FileMode.Append : FileMode.Create,
-            FileAccess.Write, FileShare.None, 8192, useAsync: true);
-
-        var buffer = new byte[8192];
-        double lastReported = 0;
-        int read;
-
-        while ((read = await contentStream.ReadAsync(buffer, cancellationToken)) > 0)
+        try
         {
-            await fileStream.WriteAsync(buffer.AsMemory(0, read), cancellationToken);
-            bytesRead += read;
+            response.EnsureSuccessStatusCode();
 
-            if (totalBytes > 0)
+            var totalBytes = response.Content.Headers.ContentRange?.Length
+                             ?? (response.Content.Headers.ContentLength is { } len ? existingBytes + len : -1);
+
+            var bytesRead = existingBytes;
+
+            await using var contentStream = await response.Content.ReadAsStreamAsync(cancellationToken);
+            await using var fileStream = new FileStream(
+                filePath,
+                resuming ? FileMode.Append : FileMode.Create,
+                FileAccess.Write, FileShare.None, 8192, useAsync: true);
+
+            var buffer = new byte[8192];
+            double lastReported = 0;
+            int read;
+
+            while ((read = await contentStream.ReadAsync(buffer, cancellationToken)) > 0)
             {
-                var fraction = (double)bytesRead / totalBytes;
-                if (fraction - lastReported >= 0.01 || fraction >= 1.0)
+                await fileStream.WriteAsync(buffer.AsMemory(0, read), cancellationToken);
+                bytesRead += read;
+
+                if (totalBytes > 0)
                 {
-                    lastReported = fraction;
-                    progress?.Report(fraction);
+                    var fraction = (double)bytesRead / totalBytes;
+                    if (fraction - lastReported >= 0.01 || fraction >= 1.0)
+                    {
+                        lastReported = fraction;
+                        progress?.Report(fraction);
+                    }
                 }
             }
+        }
+        finally
+        {
+            response.Dispose();
         }
     }
 
