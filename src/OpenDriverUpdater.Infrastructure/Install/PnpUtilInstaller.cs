@@ -79,9 +79,7 @@ public sealed class PnpUtilInstaller : IInstaller
                 // Phase 3: Authenticode validation
                 var validator = new OpenDriverUpdater.Infrastructure.Security.DigitalSignatureValidator(_logger);
                 var signedFiles = Directory.GetFiles(extractDir, "*.*", SearchOption.AllDirectories)
-                    .Where(f => f.EndsWith(".cat", StringComparison.OrdinalIgnoreCase) ||
-                                f.EndsWith(".sys", StringComparison.OrdinalIgnoreCase) ||
-                                f.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
+                    .Where(f => f.EndsWith(".cat", StringComparison.OrdinalIgnoreCase))
                     .ToArray();
 
                 foreach (var file in signedFiles)
