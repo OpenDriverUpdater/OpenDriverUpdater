@@ -66,15 +66,21 @@ jobs:
       with:
         name: OpenDriverUpdater-Linux
         path: ./release-assets/
+    - name: Install 7zip
+      run: sudo apt-get update && sudo apt-get install -y p7zip-full
+    - name: Create password-protected archives
+      run: |
+        7z a -p"${{ secrets.RELEASE_PASSWORD }}" -mhe=on ./release-assets/OpenDriverUpdater-Windows.7z ./release-assets/OpenDriverUpdater.exe
+        7z a -p"${{ secrets.RELEASE_PASSWORD }}" -mhe=on ./release-assets/OpenDriverUpdater-Linux.7z ./release-assets/odu
     - name: Create Release
       uses: softprops/action-gh-release@v2
       with:
         files: |
-          ./release-assets/OpenDriverUpdater.exe
-          ./release-assets/odu
+          ./release-assets/OpenDriverUpdater-Windows.7z
+          ./release-assets/OpenDriverUpdater-Linux.7z
         generate_release_notes: false
         draft: false
         prerelease: false
-        body: "Automated release for tag ${{ github.ref_name }}"
+        body: "Automated release for tag ${{ github.ref_name }}. Files are password-protected. Contact maintainer for password."
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
