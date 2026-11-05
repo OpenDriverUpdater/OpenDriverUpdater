@@ -1,6 +1,8 @@
 using System.Collections.ObjectModel;
+using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using OpenDriverUpdater.Core.Enums;
 using OpenDriverUpdater.Core.Models;
 
 namespace OpenDriverUpdater.App.ViewModels;
@@ -26,7 +28,8 @@ public partial class DevicesViewModel : ObservableObject
             Devices.Clear();
 
             var devices = await App.Scanner.ScanAsync();
-            foreach (var device in devices)
+            var ordered = devices.OrderByDescending(GetPriority).ThenBy(d => d.Class).ThenBy(d => d.Name).ToList();
+            foreach (var device in ordered)
                 Devices.Add(device);
         }
         catch (Exception ex)
@@ -37,5 +40,19 @@ public partial class DevicesViewModel : ObservableObject
         {
             IsLoading = false;
         }
+    }
+
+    private static int GetPriority(DeviceInfo d)
+    {
+        return d.Class switch
+        {
+            DeviceClass.Display => 100,
+            DeviceClass.Network => 90,
+            DeviceClass.Audio => 80,
+            DeviceClass.Storage => 70,
+            DeviceClass.USB => 50,
+            DeviceClass.Input => 40,
+            _ => 10
+        };
     }
 }

@@ -1,3 +1,4 @@
+using System.IO;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Security.Cryptography;
@@ -52,6 +53,19 @@ public sealed class HttpDownloadManager : IDownloadManager
                 // indirmelerde artımlı hash mümkün olmadığı için.
                 var size = new FileInfo(filePath).Length;
                 var hash = await ComputeSha256Async(filePath, cancellationToken);
+
+                // SHA256 doğrulaması
+                if (!string.IsNullOrWhiteSpace(driver.ExpectedSha256))
+                {
+                    var expected = driver.ExpectedSha256!.Trim().ToLowerInvariant();
+                    if (!string.Equals(hash, expected, StringComparison.OrdinalIgnoreCase))
+                    {
+                        File.Delete(filePath);
+                        _logger.Error("SHA256 mismatch for {Title}. Expected {Expected}, got {Actual}", null, driver.Title, expected, hash);
+                        throw new InvalidDataException($"SHA256 verification failed for {driver.Title}");
+                    }
+                    _logger.Info("SHA256 verified for {Title}", driver.Title);
+                }
 
                 _logger.Info("Download completed: {Path} ({Size} bytes, SHA256: {Hash})",
                     filePath, size, hash);

@@ -24,4 +24,7 @@ public sealed class CandidateDriver
 
     /// <summary>İndirme boyutu (bayt), biliniyorsa.</summary>
     public long? SizeBytes { get; set; }
+
+    /// <summary>Beklenen SHA256 hash (varsa). İndirme sonrası doğrulama için kullanılır.</summary>
+    public string? ExpectedSha256 { get; set; }
 }
