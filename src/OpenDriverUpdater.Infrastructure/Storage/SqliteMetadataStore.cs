@@ -37,6 +37,21 @@ public sealed class SqliteMetadataStore : IMetadataStore, IAsyncDisposable
                 DriverJson TEXT NOT NULL,
                 CachedAt TEXT NOT NULL
             );
+            CREATE TABLE IF NOT EXISTS ScanHistory (
+                Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                ScannedAt TEXT NOT NULL,
+                DeviceCount INTEGER NOT NULL
+            );
+            CREATE TABLE IF NOT EXISTS UpdateLog (
+                Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                DeviceId TEXT NOT NULL,
+                DeviceName TEXT,
+                InstalledVersion TEXT,
+                CandidateVersion TEXT,
+                Status TEXT NOT NULL,
+                Message TEXT,
+                Timestamp TEXT NOT NULL
+            );
         """;
         cmd.ExecuteNonQuery();
         _logger.Debug("SQLite schema initialized");
@@ -106,6 +121,34 @@ public sealed class SqliteMetadataStore : IMetadataStore, IAsyncDisposable
     {
         using var cmd = _connection.CreateCommand();
         cmd.CommandText = "DELETE FROM DriverCache";
+        cmd.ExecuteNonQuery();
+        return Task.CompletedTask;
+    }
+
+    public Task LogScanAsync(int deviceCount, CancellationToken ct = default)
+    {
+        using var cmd = _connection.CreateCommand();
+        cmd.CommandText = "INSERT INTO ScanHistory (ScannedAt, DeviceCount) VALUES ($at, $count)";
+        cmd.Parameters.AddWithValue("$at", DateTime.UtcNow.ToString("o"));
+        cmd.Parameters.AddWithValue("$count", deviceCount);
+        cmd.ExecuteNonQuery();
+        return Task.CompletedTask;
+    }
+
+    public Task LogUpdateAsync(string deviceId, string? deviceName, string? installedVersion, string? candidateVersion, string status, string? message, CancellationToken ct = default)
+    {
+        using var cmd = _connection.CreateCommand();
+        cmd.CommandText = """
+            INSERT INTO UpdateLog (DeviceId, DeviceName, InstalledVersion, CandidateVersion, Status, Message, Timestamp)
+            VALUES ($id, $name, $installed, $candidate, $status, $msg, $ts)
+        """;
+        cmd.Parameters.AddWithValue("$id", deviceId);
+        cmd.Parameters.AddWithValue("$name", deviceName ?? "");
+        cmd.Parameters.AddWithValue("$installed", installedVersion ?? "");
+        cmd.Parameters.AddWithValue("$candidate", candidateVersion ?? "");
+        cmd.Parameters.AddWithValue("$status", status);
+        cmd.Parameters.AddWithValue("$msg", message ?? "");
+        cmd.Parameters.AddWithValue("$ts", DateTime.UtcNow.ToString("o"));
         cmd.ExecuteNonQuery();
         return Task.CompletedTask;
     }

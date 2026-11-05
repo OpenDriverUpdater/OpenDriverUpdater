@@ -82,6 +82,11 @@ public partial class RecommendationViewModel : ObservableObject
             var progressHandler = new Progress<double>(p => Progress = p * 100);
             var package = await App.DownloadManager.DownloadAsync(candidate, downloadDir, progressHandler);
 
+            // System safety: create restore point
+            Status = "Preparing system safety...";
+            var safety = new OpenDriverUpdater.Infrastructure.Safety.SystemSafetyService(App.Logger);
+            await safety.CreateRestorePointAsync($"OpenDriverUpdater - {_recommendation.DeviceId}", default);
+
             // 2. Install
             Status = "Installing...";
             Progress = 0; // Reset for install phase

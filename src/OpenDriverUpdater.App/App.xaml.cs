@@ -71,7 +71,8 @@ public partial class App : Application
         var trustEvaluator = new TrustEvaluatorService();
 
         Resolver = new DriverResolverService(sources, versionComparer, trustEvaluator, Logger);
-        MetadataStore = new JsonMetadataStore(dataDir, Logger);
+        var dbPath = Path.Combine(dataDir, "metadata.db");
+        MetadataStore = new OpenDriverUpdater.Infrastructure.Storage.SqliteMetadataStore(dbPath, Logger);
         DownloadManager = new HttpDownloadManager(downloadClient, Logger);
         Installer = new OpenDriverUpdater.Infrastructure.Install.PnpUtilInstaller(Logger);
     }

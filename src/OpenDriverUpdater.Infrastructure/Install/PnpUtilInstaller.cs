@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Linq;
 using OpenDriverUpdater.Core.Enums;
 using OpenDriverUpdater.Core.Interfaces;
 using OpenDriverUpdater.Core.Models;
@@ -74,6 +75,24 @@ public sealed class PnpUtilInstaller : IInstaller
                 }
 
                 _logger.Info("Extracted {Count} INF file(s) from package", infFiles.Length);
+
+                // Phase 3: Authenticode validation
+                var validator = new OpenDriverUpdater.Infrastructure.Security.DigitalSignatureValidator(_logger);
+                var signedFiles = Directory.GetFiles(extractDir, "*.*", SearchOption.AllDirectories)
+                    .Where(f => f.EndsWith(".cat", StringComparison.OrdinalIgnoreCase) ||
+                                f.EndsWith(".sys", StringComparison.OrdinalIgnoreCase) ||
+                                f.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
+                    .ToArray();
+
+                foreach (var file in signedFiles)
+                {
+                    if (!validator.IsValidSigned(file))
+                    {
+                        return Fail(-1, $"Signature validation failed for {Path.GetFileName(file)}");
+                    }
+                }
+
+                _logger.Info("Signature validation passed for {Count} file(s)", signedFiles.Length);
 
                 // Tek pnputil çağrısı: dizindeki tüm INF'ler, alt dizinler dahil
                 installTarget = Path.Combine(extractDir, "*.inf");
