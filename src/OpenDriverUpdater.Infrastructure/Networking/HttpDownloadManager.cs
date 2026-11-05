@@ -119,6 +119,15 @@ public sealed class HttpDownloadManager : IDownloadManager
         using var response = await _httpClient.SendAsync(
             request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
 
+        // Handle 416 Range Not Satisfiable – server cannot resume, start over
+        if (response.StatusCode == HttpStatusCode.RequestedRangeNotSatisfiable)
+        {
+            if (File.Exists(filePath))
+                File.Delete(filePath);
+            _logger.Warn("Server returned 416 Range Not Satisfiable for {Url}, resetting download", url);
+            throw new HttpRequestException("Range Not Satisfiable – resetting download");
+        }
+
         // Sunucu Range'i yok saydıysa (206 yerine 200) baştan başla.
         var resuming = response.StatusCode == HttpStatusCode.PartialContent && existingBytes > 0;
         if (!resuming)
