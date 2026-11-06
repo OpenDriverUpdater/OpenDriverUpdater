@@ -13,3 +13,14 @@
 ## Phase 0 Recon Notes
 
 ...
+
+### Trust rules (Phase 0.6)
+- Hardware ID exact match is a gate: no match => TrustLevel.Untrusted, candidate never recommended. Matching uses StringComparison.OrdinalIgnoreCase, device HardwareIds vs candidate SupportedHardwareIds. SUBSYS/REV-suffixed IDs are treated as exact strings; no fuzzy matching.
+- IsSigned renamed to SourceReportsSigned. It is a claim, earns 0 points.
+- SignatureValidated and HashVerified are new booleans, default false. TrustLevel.Verified reachable only if both true.
+- Max level without verification is Trusted.
+- OEM match uses case-insensitive normalized contains.
+- JSON schema change: IsSigned → SourceReportsSigned.
+
+### UI mapping
+Trusted => UpdateAvailable, everything else => Unverified

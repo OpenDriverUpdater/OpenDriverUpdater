@@ -13,6 +13,7 @@ public sealed class CandidateDriver
     public bool SourceReportsSigned { get; set; }
     public bool IsBeta { get; set; }
     public IReadOnlyList<string> SupportedHardwareIds { get; set; } = [];
+    public HardwareIdMatchBasis MatchBasis { get; set; } = HardwareIdMatchBasis.QueryOnly;
 
     public override string ToString() => $"{Title} v{Version} ({SourceType})";
 

@@ -11,7 +11,6 @@ public sealed class TrustEvaluatorService : ITrustEvaluator
         var points = 0;
         var details = new List<string>();
 
-        // Gate hardening: null/empty/whitespace IDs never match
         var candidateIds = candidate.SupportedHardwareIds ?? Array.Empty<string>();
         var deviceIds = device.HardwareIds ?? Array.Empty<string>();
 
@@ -21,12 +20,7 @@ public sealed class TrustEvaluatorService : ITrustEvaluator
 
         if (!hasExactMatch)
         {
-            return new TrustScore
-            {
-                Points = 0,
-                Level = TrustLevel.Untrusted,
-                Details = new[] { "No hardware ID match - Untrusted" }
-            };
+            return new TrustScore { Points = 0, Level = TrustLevel.Untrusted, Details = new[] { "No hardware ID match - Untrusted" } };
         }
         details.Add("Hardware ID match - gate passed");
 
@@ -38,7 +32,6 @@ public sealed class TrustEvaluatorService : ITrustEvaluator
 
         details.Add("Source reports signed claim - 0 points");
 
-        // OEM is detail only, does not affect level
         if (IsOemMatchNormalized(candidate, device))
         {
             details.Add("OEM match - detail only");
@@ -59,22 +52,28 @@ public sealed class TrustEvaluatorService : ITrustEvaluator
 
         TrustLevel level;
         var verified = verification?.HashVerified == true && verification?.SignatureValidated == true;
-        if (verified)
+        var basis = candidate.MatchBasis;
+
+        if (basis == HardwareIdMatchBasis.QueryOnly)
         {
-            level = TrustLevel.Verified;
-            details.Add("Hash verified + signature validated => Verified");
-        }
-        else if (points >= 50)
-        {
-            level = candidate.IsBeta ? TrustLevel.Unknown : TrustLevel.Trusted;
-        }
-        else if (points >= 25)
-        {
+            details.Add("Hardware ID match is based on the search query only");
             level = TrustLevel.Unknown;
         }
-        else
+        else if (basis == HardwareIdMatchBasis.CatalogMetadata)
         {
-            level = TrustLevel.Untrusted;
+            level = points >= 50 ? (candidate.IsBeta ? TrustLevel.Unknown : TrustLevel.Trusted) : TrustLevel.Unknown;
+        }
+        else // InfFile
+        {
+            if (verified)
+            {
+                level = TrustLevel.Verified;
+                details.Add("Hash verified + signature validated => Verified");
+            }
+            else
+            {
+                level = points >= 50 ? (candidate.IsBeta ? TrustLevel.Unknown : TrustLevel.Trusted) : TrustLevel.Unknown;
+            }
         }
 
         return new TrustScore { Points = points, Level = level, Details = details };
