@@ -26,7 +26,7 @@ public class TrustEvaluatorHonestyTests
     };
 
     [Fact]
-    public void QueryOnly_Official_Stable => Unknown()
+    public void QueryOnly_Official_Stable_Uknown()
     {
         var dev = Device("NVIDIA", "PCI\\VEN_10DE&DEV_1F02");
         var cand = Candidate(SourceType.MicrosoftCatalog, "nvidia", false, HardwareIdMatchBasis.QueryOnly, "PCI\\VEN_10DE&DEV_1F02");
@@ -35,7 +35,7 @@ public class TrustEvaluatorHonestyTests
     }
 
     [Fact]
-    public void CatalogMetadata_Official_Stable => Trusted()
+    public void CatalogMetadata_Official_Stable_Trusted()
     {
         var dev = Device("NVIDIA", "PCI\\VEN_10DE&DEV_1F02");
         var cand = Candidate(SourceType.MicrosoftCatalog, "nvidia", false, HardwareIdMatchBasis.CatalogMetadata, "PCI\\VEN_10DE&DEV_1F02");
@@ -44,7 +44,7 @@ public class TrustEvaluatorHonestyTests
     }
 
     [Fact]
-    public void InfFile_WithVerification => Verified()
+    public void InfFile_WithVerification_Verified()
     {
         var dev = Device("NVIDIA", "PCI\\VEN_10DE&DEV_1F02");
         var cand = Candidate(SourceType.MicrosoftCatalog, "nvidia", false, HardwareIdMatchBasis.InfFile, "PCI\\VEN_10DE&DEV_1F02");
@@ -77,6 +77,24 @@ public class TrustEvaluatorHonestyTests
     {
         var dev = Device("Intel", null!);
         var cand = Candidate(SourceType.MicrosoftCatalog, "intel", false, HardwareIdMatchBasis.QueryOnly);
+        var score = _sut.Evaluate(cand, dev);
+        Assert.Equal(TrustLevel.Untrusted, score.Level);
+    }
+
+    [Fact]
+    public void Gate_EmptyIds_Untrusted()
+    {
+        var dev = Device("Intel", "");
+        var cand = Candidate(SourceType.MicrosoftCatalog, "intel", false, HardwareIdMatchBasis.QueryOnly, "");
+        var score = _sut.Evaluate(cand, dev);
+        Assert.Equal(TrustLevel.Untrusted, score.Level);
+    }
+
+    [Fact]
+    public void Gate_WhitespaceIds_Untrusted()
+    {
+        var dev = Device("Intel", "   ");
+        var cand = Candidate(SourceType.MicrosoftCatalog, "intel", false, HardwareIdMatchBasis.QueryOnly, "   ");
         var score = _sut.Evaluate(cand, dev);
         Assert.Equal(TrustLevel.Untrusted, score.Level);
     }
