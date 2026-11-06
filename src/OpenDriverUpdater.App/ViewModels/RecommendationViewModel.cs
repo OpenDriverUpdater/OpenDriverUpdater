@@ -37,6 +37,12 @@ public partial class RecommendationViewModel : ObservableObject
     {
         if (IsBusy || IsCompleted || _recommendation.Candidate is not { } candidate) return;
 
+        // Phase 0.5 safety: install pipeline disabled
+        IsBusy = false;
+        HasError = true;
+        Status = "Install pipeline is not ready";
+        return;
+
         try
         {
             IsBusy = true;

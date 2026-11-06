@@ -7,11 +7,24 @@ public static class InstallCommand
     public static Command Create()
     {
         var pathArg = new Argument<string>("path", "Kurulacak sürücü dosyasının yolu");
+        var experimentalOpt = new Option<bool>("--experimental", "Enable experimental install with missing safety checks");
 
-        var command = new Command("install", "Seçilen sürücüyü kurar") { pathArg };
+        var command = new Command("install", "Seçilen sürücüyü kurar") { pathArg, experimentalOpt };
 
-        command.SetHandler(async (string path) =>
+        command.SetHandler(async (string path, bool experimental) =>
         {
+            if (!experimental)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Install pipeline is disabled. Missing safety checks:");
+                Console.WriteLine("- SHA256 verification");
+                Console.WriteLine("- Authenticode validation");
+                Console.WriteLine("- System restore point creation");
+                Console.WriteLine("Run with --experimental to bypass this check.");
+                Console.ResetColor();
+                return;
+            }
+
             var services = Program.BuildServices();
 
             Console.ForegroundColor = ConsoleColor.Yellow;
@@ -38,7 +51,7 @@ public static class InstallCommand
                 Console.WriteLine($"✗ Installation failed: {result.Message}");
             }
             Console.ResetColor();
-        }, pathArg);
+        }, pathArg, experimentalOpt);
 
         return command;
     }
