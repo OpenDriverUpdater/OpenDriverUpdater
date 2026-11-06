@@ -6,13 +6,19 @@ namespace OpenDriverUpdater.Core.Services;
 
 public sealed class TrustEvaluatorService : ITrustEvaluator
 {
-    public TrustScore Evaluate(CandidateDriver candidate, DeviceInfo device)
+    public TrustScore Evaluate(CandidateDriver candidate, DeviceInfo device, VerificationResult? verification = null)
     {
         var points = 0;
         var details = new List<string>();
 
-        // Gate: exact hardware ID match required
-        var hasExactMatch = candidate.SupportedHardwareIds?.Any(cId => device.HardwareIds.Any(dId => string.Equals(cId, dId, StringComparison.OrdinalIgnoreCase))) ?? false;
+        // Gate hardening: null/empty/whitespace IDs never match
+        var candidateIds = candidate.SupportedHardwareIds ?? Array.Empty<string>();
+        var deviceIds = device.HardwareIds ?? Array.Empty<string>();
+
+        var hasExactMatch = candidateIds.Any(cId =>
+            !string.IsNullOrWhiteSpace(cId) &&
+            deviceIds.Any(dId => !string.IsNullOrWhiteSpace(dId) && string.Equals(cId, dId, StringComparison.OrdinalIgnoreCase)));
+
         if (!hasExactMatch)
         {
             return new TrustScore
@@ -30,13 +36,12 @@ public sealed class TrustEvaluatorService : ITrustEvaluator
             details.Add("Official source (+30)");
         }
 
-        // SourceReportsSigned is a claim, 0 points
         details.Add("Source reports signed claim - 0 points");
 
+        // OEM is detail only, does not affect level
         if (IsOemMatchNormalized(candidate, device))
         {
-            points += 20;
-            details.Add("OEM match (+20)");
+            details.Add("OEM match - detail only");
         }
 
         if (!candidate.IsBeta)
@@ -53,7 +58,8 @@ public sealed class TrustEvaluatorService : ITrustEvaluator
         details.Add("Hardware ID match (+10)");
 
         TrustLevel level;
-        if (candidate.HashVerified && candidate.SignatureValidated)
+        var verified = verification?.HashVerified == true && verification?.SignatureValidated == true;
+        if (verified)
         {
             level = TrustLevel.Verified;
             details.Add("Hash verified + signature validated => Verified");
