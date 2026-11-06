@@ -13,7 +13,9 @@ public sealed class CandidateDriver
     public string? Provider { get; set; }
     public string? DownloadUrl { get; set; }
     public SourceType SourceType { get; set; } = SourceType.Unknown;
-    public bool IsSigned { get; set; }
+    public bool SourceReportsSigned { get; set; }
+    public bool SignatureValidated { get; set; }
+    public bool HashVerified { get; set; }
     public bool IsBeta { get; set; }
     public IReadOnlyList<string> SupportedHardwareIds { get; set; } = [];
 

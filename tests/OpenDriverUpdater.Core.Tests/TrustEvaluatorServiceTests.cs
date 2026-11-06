@@ -18,14 +18,14 @@ public class TrustEvaluatorServiceTests
     };
 
     [Fact]
-    public void Evaluate_OfficialSignedStable_ReturnsVerified()
+    public void Evaluate_OfficialSignedStable_ReturnsTrusted()
     {
         var candidate = new CandidateDriver
         {
             Title = "Intel Driver",
             Version = "2.0.0",
             SourceType = SourceType.Intel,
-            IsSigned = true,
+            SourceReportsSigned = true,
             IsBeta = false,
             Provider = "Intel",
             SupportedHardwareIds = ["PCI\\VEN_8086&DEV_1234"]
@@ -33,8 +33,8 @@ public class TrustEvaluatorServiceTests
 
         var result = _sut.Evaluate(candidate, CreateDevice());
 
-        Assert.Equal(TrustLevel.Verified, result.Level);
-        Assert.True(result.Points >= 80);
+        Assert.Equal(TrustLevel.Trusted, result.Level);
+        Assert.True(result.Points >= 50);
     }
 
     [Fact]
@@ -45,14 +45,14 @@ public class TrustEvaluatorServiceTests
             Title = "Community Driver",
             Version = "0.9.0-beta",
             SourceType = SourceType.Community,
-            IsSigned = false,
+            SourceReportsSigned = false,
             IsBeta = true,
             SupportedHardwareIds = ["PCI\\VEN_FFFF"]
         };
 
         var result = _sut.Evaluate(candidate, CreateDevice());
 
-        Assert.True(result.Points < 50);
+        Assert.Equal(TrustLevel.Untrusted, result.Level);
     }
 
     [Fact]
@@ -68,6 +68,6 @@ public class TrustEvaluatorServiceTests
 
         var result = _sut.Evaluate(candidate, CreateDevice());
 
-        Assert.Contains(result.Details, d => d.Contains("Direct Hardware ID match"));
+        Assert.Contains(result.Details, d => d.Contains("Hardware ID match"));
     }
 }

@@ -4,44 +4,41 @@ using OpenDriverUpdater.Core.Models;
 
 namespace OpenDriverUpdater.Core.Services;
 
-/// <summary>
-/// Çok kriterli güven puanı değerlendiricisi.
-/// </summary>
 public sealed class TrustEvaluatorService : ITrustEvaluator
 {
-    private const int MaxPoints = 100;
-
     public TrustScore Evaluate(CandidateDriver candidate, DeviceInfo device)
     {
         var points = 0;
         var details = new List<string>();
 
-        // 1. Kaynak resmi mi? (+30)
+        // Gate: exact hardware ID match required
+        var hasExactMatch = candidate.SupportedHardwareIds?.Any(cId => device.HardwareIds.Any(dId => string.Equals(cId, dId, StringComparison.OrdinalIgnoreCase))) ?? false;
+        if (!hasExactMatch)
+        {
+            return new TrustScore
+            {
+                Points = 0,
+                Level = TrustLevel.Untrusted,
+                Details = new[] { "No hardware ID match - Untrusted" }
+            };
+        }
+        details.Add("Hardware ID match - gate passed");
+
         if (IsOfficialSource(candidate.SourceType))
         {
             points += 30;
             details.Add("Official source (+30)");
         }
 
-        // 2. Dijital imza (+25)
-        if (candidate.IsSigned)
-        {
-            points += 25;
-            details.Add("Digitally signed (+25)");
-        }
-        else
-        {
-            details.Add("Not signed (0)");
-        }
+        // SourceReportsSigned is a claim, 0 points
+        details.Add("Source reports signed claim - 0 points");
 
-        // 3. OEM uyumu (+20)
-        if (IsOemMatch(candidate, device))
+        if (IsOemMatchNormalized(candidate, device))
         {
             points += 20;
             details.Add("OEM match (+20)");
         }
 
-        // 4. Stabil mi? (+15)
         if (!candidate.IsBeta)
         {
             points += 15;
@@ -49,45 +46,47 @@ public sealed class TrustEvaluatorService : ITrustEvaluator
         }
         else
         {
-            details.Add("Beta release (0)");
+            details.Add("Beta release - level lowered");
         }
 
-        // 5. Hardware ID doğrudan eşleşme (+10)
-        if (HasDirectHardwareIdMatch(candidate, device))
+        points += 10;
+        details.Add("Hardware ID match (+10)");
+
+        TrustLevel level;
+        if (candidate.HashVerified && candidate.SignatureValidated)
         {
-            points += 10;
-            details.Add("Direct Hardware ID match (+10)");
+            level = TrustLevel.Verified;
+            details.Add("Hash verified + signature validated => Verified");
+        }
+        else if (points >= 50)
+        {
+            level = candidate.IsBeta ? TrustLevel.Unknown : TrustLevel.Trusted;
+        }
+        else if (points >= 25)
+        {
+            level = TrustLevel.Unknown;
+        }
+        else
+        {
+            level = TrustLevel.Untrusted;
         }
 
-        var level = points switch
-        {
-            >= 80 => TrustLevel.Verified,
-            >= 50 => TrustLevel.Trusted,
-            >= 25 => TrustLevel.Unknown,
-            _ => TrustLevel.Untrusted,
-        };
-
-        return new TrustScore
-        {
-            Level = level,
-            Points = Math.Min(points, MaxPoints),
-            Details = details
-        };
+        return new TrustScore { Points = points, Level = level, Details = details };
     }
 
-    private static bool IsOfficialSource(SourceType source) =>
-        source is SourceType.MicrosoftCatalog
-            or SourceType.Intel
-            or SourceType.Amd
-            or SourceType.Nvidia;
+    private static bool IsOfficialSource(SourceType source) => source switch
+    {
+        SourceType.MicrosoftCatalog => true,
+        SourceType.Intel => true,
+        SourceType.Amd => true,
+        SourceType.Nvidia => true,
+        _ => false
+    };
 
-    private static bool IsOemMatch(CandidateDriver candidate, DeviceInfo device) =>
-        !string.IsNullOrWhiteSpace(device.Manufacturer)
-        && !string.IsNullOrWhiteSpace(candidate.Provider)
-        && device.Manufacturer.Contains(candidate.Provider, StringComparison.OrdinalIgnoreCase);
-
-    private static bool HasDirectHardwareIdMatch(CandidateDriver candidate, DeviceInfo device) =>
-        candidate.SupportedHardwareIds
-            .Any(cId => device.HardwareIds.Any(dId =>
-                string.Equals(cId, dId, StringComparison.OrdinalIgnoreCase)));
+    private static bool IsOemMatchNormalized(CandidateDriver candidate, DeviceInfo device)
+    {
+        var provider = (candidate.Provider ?? "").Trim().ToLowerInvariant();
+        var manufacturer = (device.Manufacturer ?? "").Trim().ToLowerInvariant();
+        return !string.IsNullOrEmpty(provider) && manufacturer.Contains(provider);
+    }
 }
