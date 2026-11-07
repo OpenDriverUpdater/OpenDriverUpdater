@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OpenDriverUpdater.Core.Models;
@@ -20,11 +21,15 @@ public partial class UpdatesViewModel : ObservableObject
             IsLoading = true;
             Recommendations.Clear();
 
+            App.DiscordPresence.SetPresence("Güncellemeler denetleniyor...", "Microsoft Update Catalog");
+
             var devices = await App.Scanner.ScanAsync();
             var results = await App.Resolver.ResolveAsync(devices);
 
             foreach (var r in results)
                 Recommendations.Add(new RecommendationViewModel(r));
+
+            App.DiscordPresence.SetPresence($"{results.Count()} öneri bulundu", "Yüklemeye hazır");
         }
         catch (Exception ex)
         {

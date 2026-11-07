@@ -4,6 +4,7 @@ using OpenDriverUpdater.Core.Services;
 using OpenDriverUpdater.Infrastructure.Hardware;
 using OpenDriverUpdater.Infrastructure.Logging;
 using OpenDriverUpdater.Infrastructure.Networking;
+using OpenDriverUpdater.Infrastructure.Presence;
 using OpenDriverUpdater.Infrastructure.Sources;
 using OpenDriverUpdater.Infrastructure.Storage;
 
@@ -21,6 +22,7 @@ public partial class App : Application
     public static IInstaller Installer { get; private set; } = null!;
     public static IMetadataStore MetadataStore { get; private set; } = null!;
     public static IReadOnlyList<IDriverSource> DriverSources { get; private set; } = null!;
+    public static IDiscordPresence DiscordPresence { get; private set; } = null!;
 
     public App()
     {
@@ -75,5 +77,11 @@ public partial class App : Application
         MetadataStore = new OpenDriverUpdater.Infrastructure.Storage.SqliteMetadataStore(dbPath, Logger);
         DownloadManager = new HttpDownloadManager(downloadClient, Logger);
         Installer = new OpenDriverUpdater.Infrastructure.Install.PnpUtilInstaller(Logger);
+
+        // Discord Rich Presence — yalnızca ODU_DISCORD_APP_ID ayarlandığında etkin.
+        var discordAppId = Environment.GetEnvironmentVariable("ODU_DISCORD_APP_ID");
+        DiscordPresence = new DiscordPresenceService(
+            discordAppId,
+            !string.IsNullOrWhiteSpace(discordAppId));
     }
 }

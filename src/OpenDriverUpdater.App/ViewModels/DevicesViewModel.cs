@@ -27,10 +27,14 @@ public partial class DevicesViewModel : ObservableObject
             IsLoading = true;
             Devices.Clear();
 
+            App.DiscordPresence.SetPresence("Donanım taranıyor...", "OpenDriverUpdater");
+
             var devices = await App.Scanner.ScanAsync();
             var ordered = devices.OrderByDescending(GetPriority).ThenBy(d => d.Class).ThenBy(d => d.Name).ToList();
             foreach (var device in ordered)
                 Devices.Add(device);
+
+            App.DiscordPresence.SetPresence($"{devices.Count} cihaz bulundu", "Hazır");
         }
         catch (Exception ex)
         {
