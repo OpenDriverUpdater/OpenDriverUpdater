@@ -451,9 +451,20 @@
             <div class="cta-banner__content">
                 <h2>Ready to take control of your drivers?</h2>
                 <p>Download OpenDriverUpdater — it's free, it's open source, and it respects your system.</p>
+
+                <!-- En son sürüm bilgisi (GitHub API ile dinamik) -->
+                <div class="release-info">
+                    <span class="release__label">En son sürüm:</span>
+                    <span id="release-tag" class="release__tag">v?</span>
+                    <p id="release-notes" class="release__notes">GitHub'dan sürüm bilgisi yükleniyor…</p>
+                    <span id="release-date" class="release__date"></span>
+                    <a id="download-link" href="https://github.com/OpenDriverUpdater/OpenDriverUpdater/releases/latest"
+                        class="btn btn--primary btn--lg">İndir</a>
+                </div>
+
                 <div class="hero__actions">
-                    <a href="https://github.com/OpenDriverUpdater/OpenDriverUpdater/releases/latest"
-                        class="btn btn--primary btn--lg">Download Now</a>
+                    <a href="https://github.com/OpenDriverUpdater/OpenDriverUpdater/releases" class="btn btn--ghost btn--lg"
+                        target="_blank" rel="noopener">Tüm Sürümler</a>
                     <a href="https://github.com/OpenDriverUpdater/OpenDriverUpdater" class="btn btn--ghost btn--lg"
                         target="_blank" rel="noopener">Star on GitHub</a>
                     <a href="https://odu.crty-dev.com/" class="btn btn--ghost btn--lg" target="_blank"
