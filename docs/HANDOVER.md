@@ -24,3 +24,41 @@
 
 ### UI mapping
 Trusted => UpdateAvailable, everything else => Unverified
+
+## Code signing
+
+- **Current chain is a private root CA.** `certs/OpenDriverUpdaterRoot.cer` and
+  `certs/OpenDriverUpdater.cer` are self-made certificates. Windows does not trust
+  them, they will show "Unknown publisher", and they must **not** be distributed
+  or installed as a trusted root on end-user machines. If the private key leaks,
+  every machine that trusts the root can be tricked into trusting forged signatures.
+- **Do not ship `.cer` files in release artifacts.** Releases contain only the
+  application zip and `SHA256SUMS.txt`. `scripts/release.ps1` does not copy
+  certificates into `dist/`.
+- **Options:**
+  1. **SignPath Foundation (recommended for this OSS project).** Free code signing
+     for OSI-licensed public repositories. Requirements include a public repo, a
+     documented code-signing policy, 2FA for all organization members, and signing
+     in CI (not on a local machine). The publisher name appears as
+     "SignPath Foundation". Approval is not guaranteed; driver updaters may be
+     reviewed as a potentially unwanted software category.
+  2. **Paid OV/EV code-signing certificate.** Publisher shows the organization.
+     Requires identity validation and secure key storage; CI signing must use a
+     hardware token/HSM or a cloud signing service.
+  3. **Unsigned alpha.** Publish with `SHA256SUMS.txt` and a clear "This build is
+     not code-signed" note. A SHA-256 checksum is not a cryptographic signature
+     and does not prove the publisher's identity; it only detects corruption or a
+     swapped download.
+- **Decision: pending owner decision.** Until a trusted signing identity is
+  available, public releases must be unsigned (or not published) and must include
+  `SHA256SUMS.txt`.
+- `scripts/release.ps1` fails if no thumbprint/PFX is configured unless
+  `-Unsigned` is passed. With `-Unsigned` it skips signing, still creates the zip
+  and checksum manifest, and the release notes state that the build is not
+  code-signed.
+
+## Release gate
+
+Phase 0.8 (test reconciliation 29 -> 35+, App.Tests in the solution run, real
+Catalog research with real saved pages, MatchBasis hardening) remains open and
+blocks the first public release.

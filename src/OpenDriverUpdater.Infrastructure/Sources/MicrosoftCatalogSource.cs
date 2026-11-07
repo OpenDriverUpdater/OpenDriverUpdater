@@ -208,9 +208,10 @@ public sealed class MicrosoftCatalogSource : IDriverSource
                 ReleaseDate = lastUpdated == default ? null : lastUpdated,
                 Provider = products,
                 SourceType = SourceType.MicrosoftCatalog,
-                SourceReference = updateId,      // Catalog update GUID — download resolution needs this
+                SourceReference = updateId,
                 SizeBytes = sizeBytes > 0 ? sizeBytes : null,
-                IsSigned = true,                 // Catalog only distributes WHQL-signed drivers
+                SourceReportsSigned = true,
+                MatchBasis = HardwareIdMatchBasis.QueryOnly,
                 SupportedHardwareIds = new[] { searchQuery },
             });
         }

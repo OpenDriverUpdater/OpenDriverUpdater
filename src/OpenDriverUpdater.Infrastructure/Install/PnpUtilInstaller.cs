@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Linq;
 using OpenDriverUpdater.Core.Enums;
 using OpenDriverUpdater.Core.Interfaces;
@@ -11,6 +10,10 @@ namespace OpenDriverUpdater.Infrastructure.Install;
 /// ardından içindeki INF'leri pnputil /add-driver /install ile kurar.
 /// NOT: pnputil /install yönetici yetkisi gerektirir — uygulama yükseltilmiş
 /// çalışmıyorsa kurulum "Access denied" ile başarısız olur.
+///
+/// Çalıştırılabilir dosyalar PATH üzerinden değil, Windows sistem dizininden
+/// (Environment.SystemDirectory) çözülür. Süreç başlatma <see cref="IProcessRunner"/>
+/// arkasındadır; testler gerçek pnputil/expand çalıştırmaz.
 /// </summary>
 public sealed class PnpUtilInstaller : IInstaller
 {
@@ -19,11 +22,37 @@ public sealed class PnpUtilInstaller : IInstaller
     private const int ExitRebootRequired = 3010;   // ERROR_SUCCESS_REBOOT_REQUIRED
     private const int ExitRebootInitiated = 1641;  // ERROR_SUCCESS_REBOOT_INITIATED
 
+    private static readonly TimeSpan ExpandTimeout = TimeSpan.FromMinutes(2);
+    private static readonly TimeSpan PnPUtilTimeout = TimeSpan.FromMinutes(10);
+
     private readonly ILoggerService _logger;
+    private readonly IProcessRunner _processRunner;
+    private readonly ISignatureValidator _signatureValidator;
 
     public PnpUtilInstaller(ILoggerService logger)
+        : this(
+            logger,
+            new SystemProcessRunner(),
+            new OpenDriverUpdater.Infrastructure.Security.DigitalSignatureValidator(logger))
+    {
+    }
+
+    public PnpUtilInstaller(ILoggerService logger, IProcessRunner processRunner)
+        : this(
+            logger,
+            processRunner,
+            new OpenDriverUpdater.Infrastructure.Security.DigitalSignatureValidator(logger))
+    {
+    }
+
+    public PnpUtilInstaller(
+        ILoggerService logger,
+        IProcessRunner processRunner,
+        ISignatureValidator signatureValidator)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _processRunner = processRunner ?? throw new ArgumentNullException(nameof(processRunner));
+        _signatureValidator = signatureValidator ?? throw new ArgumentNullException(nameof(signatureValidator));
     }
 
     public async Task<InstallResult> InstallAsync(
@@ -32,6 +61,12 @@ public sealed class PnpUtilInstaller : IInstaller
         CancellationToken cancellationToken = default)
     {
         progress?.Report(0);
+
+        if (!OperatingSystem.IsWindows())
+        {
+            return Fail(-1, "Driver installation with pnputil is only supported on Windows.");
+        }
+
         if (!File.Exists(package.FilePath))
         {
             return Fail(-1, $"Package file not found: {package.FilePath}");
@@ -39,6 +74,12 @@ public sealed class PnpUtilInstaller : IInstaller
 
         try
         {
+            var pnputilPath = ResolveSystemTool("pnputil.exe");
+            if (pnputilPath is null)
+            {
+                return Fail(-1, "pnputil.exe not found in the Windows system directory.");
+            }
+
             // ── 1. Paket bir .cab ise önce aç ─────────────────────────────
             string installTarget;
             var isCab = Path.GetExtension(package.FilePath)
@@ -47,6 +88,12 @@ public sealed class PnpUtilInstaller : IInstaller
             if (isCab)
             {
                 _logger.Info("Extracting driver package {Path}", package.FilePath);
+
+                var expandPath = ResolveSystemTool("expand.exe");
+                if (expandPath is null)
+                {
+                    return Fail(-1, "expand.exe not found in the Windows system directory.");
+                }
 
                 var extractDir = Path.Combine(
                     Path.GetDirectoryName(package.FilePath)!,
@@ -57,9 +104,10 @@ public sealed class PnpUtilInstaller : IInstaller
                     Directory.Delete(extractDir, recursive: true);
                 Directory.CreateDirectory(extractDir);
 
-                var (expandExit, expandOut, expandErr) = await RunProcessAsync(
-                    "expand.exe",
-                    $"-F:* \"{package.FilePath}\" \"{extractDir}\"",
+                var (expandExit, expandOut, expandErr) = await _processRunner.RunAsync(
+                    expandPath,
+                    new[] { "-F:*", package.FilePath, extractDir },
+                    ExpandTimeout,
                     cancellationToken);
 
                 if (expandExit != 0)
@@ -77,20 +125,30 @@ public sealed class PnpUtilInstaller : IInstaller
                 _logger.Info("Extracted {Count} INF file(s) from package", infFiles.Length);
 
                 // Phase 3: Authenticode validation
-                var validator = new OpenDriverUpdater.Infrastructure.Security.DigitalSignatureValidator(_logger);
                 var signedFiles = Directory.GetFiles(extractDir, "*.*", SearchOption.AllDirectories)
                     .Where(f => f.EndsWith(".cat", StringComparison.OrdinalIgnoreCase))
                     .ToArray();
 
+                // Fail-closed: katalog bulunamazsa imza kanıtlanamaz, kurulum reddedilir.
+                if (signedFiles.Length == 0)
+                {
+                    return Fail(-1,
+                        "No .cat catalog file was found in the extracted package, so no Authenticode " +
+                        "signature could be validated. Installation refused.");
+                }
+
                 foreach (var file in signedFiles)
                 {
-                    if (!validator.IsValidSigned(file))
+                    if (!_signatureValidator.IsValidSigned(file))
                     {
                         return Fail(-1, $"Signature validation failed for {Path.GetFileName(file)}");
                     }
                 }
 
-                _logger.Info("Signature validation passed for {Count} file(s)", signedFiles.Length);
+                _logger.Info(
+                    "Validated Authenticode signature of {Count} .cat file(s). " +
+                    "This does not prove that the driver binaries match the catalog contents.",
+                    signedFiles.Length);
 
                 // Tek pnputil çağrısı: dizindeki tüm INF'ler, alt dizinler dahil
                 installTarget = Path.Combine(extractDir, "*.inf");
@@ -106,9 +164,10 @@ public sealed class PnpUtilInstaller : IInstaller
             // ── 2. pnputil ile kur ────────────────────────────────────────
             _logger.Info("Installing driver from {Target}", installTarget);
 
-            var (exitCode, stdout, stderr) = await RunProcessAsync(
-                "pnputil",
-                $"/add-driver \"{installTarget}\" /subdirs /install",
+            var (exitCode, stdout, stderr) = await _processRunner.RunAsync(
+                pnputilPath,
+                new[] { "/add-driver", installTarget, "/subdirs", "/install" },
+                PnPUtilTimeout,
                 cancellationToken);
 
             // pnputil çoklu paketlerde herhangi biri başarısız olursa sıfır-dışı
@@ -155,27 +214,10 @@ public sealed class PnpUtilInstaller : IInstaller
         }
     }
 
-    private static async Task<(int ExitCode, string StdOut, string StdErr)> RunProcessAsync(
-        string fileName, string arguments, CancellationToken cancellationToken)
+    private static string? ResolveSystemTool(string fileName)
     {
-        var startInfo = new ProcessStartInfo
-        {
-            FileName = fileName,
-            Arguments = arguments,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            UseShellExecute = false,
-            CreateNoWindow = true,
-        };
-
-        using var process = Process.Start(startInfo)
-            ?? throw new InvalidOperationException($"Failed to start process: {fileName}");
-
-        var stdoutTask = process.StandardOutput.ReadToEndAsync(cancellationToken);
-        var stderrTask = process.StandardError.ReadToEndAsync(cancellationToken);
-        await process.WaitForExitAsync(cancellationToken);
-
-        return (process.ExitCode, await stdoutTask, await stderrTask);
+        var path = Path.Combine(Environment.SystemDirectory, fileName);
+        return File.Exists(path) ? path : null;
     }
 
     private static InstallResult Fail(int exitCode, string message) => new()

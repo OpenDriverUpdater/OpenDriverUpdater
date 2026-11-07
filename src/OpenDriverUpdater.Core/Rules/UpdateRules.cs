@@ -18,7 +18,7 @@ public static class UpdateRules
             return false;
 
         // İmzasız sürücüler varsayılan olarak önerilmez
-        if (!candidate.IsSigned && trust.Level < TrustLevel.Trusted)
+        if (!candidate.SourceReportsSigned && trust.Level < TrustLevel.Trusted)
             return false;
 
         // Beta sürücüler sadece güvenilir kaynaklardan önerilir
@@ -35,7 +35,7 @@ public static class UpdateRules
     {
         // Sadece Verified seviyesinde ve imzalı sürücüler otomatik kurulabilir
         return trust.Level == TrustLevel.Verified
-            && candidate.IsSigned
+            && candidate.SourceReportsSigned
             && !candidate.IsBeta;
     }
 

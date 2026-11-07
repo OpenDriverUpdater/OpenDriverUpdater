@@ -2,20 +2,38 @@
 
 ## Supported Versions
 
-Use this section to tell people about which versions of your project are
-currently being supported with security updates.
+OpenDriverUpdater **has no released version yet**. Development happens on
+`main`; pre-release artifacts (for example `v0.1.0-alpha.1`) are unsigned and
+are intended for testing only. Do not rely on them on security-sensitive
+systems.
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 5.1.x   | :white_check_mark: |
-| 5.0.x   | :x:                |
-| 4.0.x   | :white_check_mark: |
-| < 4.0   | :x:                |
+| Version                     | Supported |
+| --------------------------- | --------- |
+| unreleased (`main`)         | Testing only — no security support |
+| `0.1.0-alpha.1` pre-release | Not signed; manual verification via `SHA256SUMS.txt` |
+| anything else               | No |
 
 ## Reporting a Vulnerability
 
-Use this section to tell people how to report a vulnerability.
+- Report **privately** through GitHub: repository → **Security** tab →
+  **Report a vulnerability**.
+- Do **not** open a public issue for anything exploitable, especially around:
+  - the driver install pipeline (`pnputil`),
+  - download integrity,
+  - Authenticode / catalog signature validation,
+  - trust scoring and update recommendations.
+- Expect an initial response within 7 days.
+- Fixes are shipped first for `main`, then reflected in the next pre-release
+  or release with a security note.
 
-Tell them where to go, how often they can expect to get an update on a
-reported vulnerability, what to expect if the vulnerability is accepted or
-declined, etc.
+## In Scope
+
+- The WinUI 3 desktop application.
+- The `odu` CLI.
+- The download/install pipeline and signature validation.
+
+## Out of Scope (current)
+
+- The static website (`Web/`): it is deployed separately and processes no
+  user data server-side. If you found an issue in it, please still report it
+  through GitHub issues.

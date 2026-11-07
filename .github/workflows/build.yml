@@ -7,15 +7,18 @@ on:
   pull_request:
     branches: [ main ]
 
+# Varsayılan izin yalnızca okuma. Yayın job'u kapalı olduğu için yazma izni
+# hiçbir job'a verilmiyor. Release açıldığında yalnızca o job'a contents: write
+# verilmelidir.
 permissions:
-  contents: write
+  contents: read
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   build_windows:
-    name: Build & Publish (Windows)
+    name: Build & Test (Windows)
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v4
@@ -23,6 +26,13 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
+    - name: Restore
+      run: dotnet restore OpenDriverUpdater.sln
+    - name: Build
+      run: dotnet build OpenDriverUpdater.sln -c Release --no-restore
+    - name: Test
+      # Test başarısızlığı job'u ve dolayısıyla release bağımlılığını durdurur.
+      run: dotnet test OpenDriverUpdater.sln -c Release --no-build --verbosity normal
     - name: Publish App (Windows)
       run: |
         dotnet publish src/OpenDriverUpdater.App/OpenDriverUpdater.App.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o ./publish/win-app
@@ -33,7 +43,7 @@ jobs:
         path: ./publish/win-app/OpenDriverUpdater.exe
 
   build_linux:
-    name: Build & Publish (Linux CLI)
+    name: Build & Test (Linux CLI)
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -41,6 +51,22 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
+    - name: Restore Linux-buildable projects
+      # WinUI App ve net8.0-windows hedefli Infrastructure.Tests Linux'ta
+      # derlenmez; bilinçli olarak solution yerine tek tek projeler restore edilir.
+      # Multi-target projelerde yalnızca net8.0 hedefi restore edilir.
+      run: |
+        dotnet restore src/OpenDriverUpdater.Core/OpenDriverUpdater.Core.csproj
+        dotnet restore src/OpenDriverUpdater.Infrastructure/OpenDriverUpdater.Infrastructure.csproj -p:TargetFrameworks=net8.0
+        dotnet restore src/OpenDriverUpdater.Cli/OpenDriverUpdater.Cli.csproj -p:TargetFrameworks=net8.0
+        dotnet restore tests/OpenDriverUpdater.Core.Tests/OpenDriverUpdater.Core.Tests.csproj
+    - name: Build Infrastructure (net8.0)
+      run: dotnet build src/OpenDriverUpdater.Infrastructure/OpenDriverUpdater.Infrastructure.csproj -c Release -f net8.0 --no-restore
+    - name: Build CLI (net8.0)
+      run: dotnet build src/OpenDriverUpdater.Cli/OpenDriverUpdater.Cli.csproj -c Release -f net8.0 --no-restore
+    - name: Test Core
+      # Platformdan bağımsız Core testleri Linux'ta da çalışır.
+      run: dotnet test tests/OpenDriverUpdater.Core.Tests/OpenDriverUpdater.Core.Tests.csproj -c Release --no-restore --verbosity normal
     - name: Publish CLI (Linux)
       run: |
         dotnet publish src/OpenDriverUpdater.Cli/OpenDriverUpdater.Cli.csproj -c Release -f net8.0 -r linux-x64 --self-contained true -p:PublishSingleFile=true -o ./publish/linux-cli
@@ -50,37 +76,17 @@ jobs:
         name: OpenDriverUpdater-Linux
         path: ./publish/linux-cli/odu
 
+  # Release publishing remains intentionally disabled. Before enabling:
+  #   - all build/test jobs must be green (needs below enforces ordering),
+  #   - signing must be configured in CI (not a self-made root CA),
+  #   - a SHA256 manifest must be published with the real assets,
+  #   - no password-protected archive may be the default distribution format.
   create_release:
-    name: Create GitHub Release
+    name: Create GitHub Release (disabled)
     needs: [build_windows, build_linux]
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: false
     runs-on: ubuntu-latest
     steps:
-    - name: Download Windows App
-      uses: actions/download-artifact@v4
-      with:
-        name: OpenDriverUpdater-Windows
-        path: ./release-assets/
-    - name: Download Linux CLI
-      uses: actions/download-artifact@v4
-      with:
-        name: OpenDriverUpdater-Linux
-        path: ./release-assets/
-    - name: Install 7zip
-      run: sudo apt-get update && sudo apt-get install -y p7zip-full
-    - name: Create password-protected archives
+    - name: Release publishing is intentionally disabled
       run: |
-        7z a -p"${{ secrets.RELEASE_PASSWORD }}" -mhe=on ./release-assets/OpenDriverUpdater-Windows.7z ./release-assets/OpenDriverUpdater.exe
-        7z a -p"${{ secrets.RELEASE_PASSWORD }}" -mhe=on ./release-assets/OpenDriverUpdater-Linux.7z ./release-assets/odu
-    - name: Create Release
-      uses: softprops/action-gh-release@v2
-      with:
-        files: |
-          ./release-assets/OpenDriverUpdater-Windows.7z
-          ./release-assets/OpenDriverUpdater-Linux.7z
-        generate_release_notes: false
-        draft: false
-        prerelease: false
-        body: "Automated release for tag ${{ github.ref_name }}. Files are password-protected. Contact maintainer for password."
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        echo "Release publishing is disabled. Use scripts/release.ps1 with a signing certificate, or -Unsigned for an alpha build with SHA256SUMS.txt."

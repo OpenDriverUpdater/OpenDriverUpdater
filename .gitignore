@@ -4,7 +4,11 @@
 [Ll]og/
 [Ll]ogs/
 dist/
+publish/
 *.pfx
+*.p12
+*.snk
+.env
 
 ## IDE
 .vs/

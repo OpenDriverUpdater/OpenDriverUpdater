@@ -18,6 +18,13 @@ public class TrustEvaluatorServiceTests
     };
 
     [Fact]
+    public void CandidateDriver_DefaultMatchBasis_IsQueryOnly()
+    {
+        var candidate = new CandidateDriver();
+        Assert.Equal(HardwareIdMatchBasis.QueryOnly, candidate.MatchBasis);
+    }
+
+    [Fact]
     public void Evaluate_OfficialSignedStable_ReturnsTrusted()
     {
         var candidate = new CandidateDriver
@@ -28,7 +35,8 @@ public class TrustEvaluatorServiceTests
             SourceReportsSigned = true,
             IsBeta = false,
             Provider = "Intel",
-            SupportedHardwareIds = ["PCI\\VEN_8086&DEV_1234"]
+            SupportedHardwareIds = ["PCI\\VEN_8086&DEV_1234"],
+            MatchBasis = HardwareIdMatchBasis.CatalogMetadata
         };
 
         var result = _sut.Evaluate(candidate, CreateDevice());

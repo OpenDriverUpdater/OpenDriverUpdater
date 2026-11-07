@@ -9,6 +9,10 @@
   <ItemGroup>
     <ProjectReference Include="..\OpenDriverUpdater.Core\OpenDriverUpdater.Core.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="OpenDriverUpdater.Infrastructure.Tests" />
+  </ItemGroup>
  
   <ItemGroup>
     <PackageReference Include="HtmlAgilityPack" Version="1.12.4" />
