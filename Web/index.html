@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenDriverUpdater — Free & Open-Source Windows Driver Updater</title>
+    <meta name="description"
+        content="OpenDriverUpdater is a free, open-source Windows driver updater. Scan hardware, find official drivers from Microsoft Catalog, and install safely — no ads, no bloat, no tracking.">
+    <meta name="keywords"
+        content="open source driver updater, free Windows driver updater, driver update tool, Windows driver manager, Microsoft Catalog driver updater">
+    <meta name="author" content="OpenDriverUpdater Contributors">
+    <meta property="og:title" content="OpenDriverUpdater — Free & Open-Source Windows Driver Updater">
+    <meta property="og:description"
+        content="Keep your Windows drivers up to date with confidence. Open-source, transparent, and community-driven.">
+    <meta property="og:type" content="website">
+    <meta name="theme-color" content="#0a0e1a">
+    <link rel="icon" href="img/odu_favicon.ico" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- ═══════════════════ NAV ═══════════════════ -->
+    <nav class="nav" id="nav">
+        <div class="nav__inner">
+            <a href="#hero" class="nav__logo">
+                <img src="img/logo_odu-removebg.png" alt="ODU Logo" class="nav__logo-img">
+                <span>OpenDriverUpdater</span>
+            </a>
+            <div class="nav__links">
+                <a href="#features">Features</a>
+                <a href="#how-it-works">How it Works</a>
+                <a href="#safety">Safety</a>
+                <a href="#cli">CLI</a>
+                <a href="https://github.com/OpenDriverUpdater" class="nav__cta" target="_blank" rel="noopener">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
+                    </svg>
+                    GitHub
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ═══════════════════ HERO ═══════════════════ -->
+    <section class="hero" id="hero">
+        <div class="hero__glow"></div>
+        <div class="hero__grid-bg"></div>
+        <div class="hero__content">
+            <div class="hero__badge">
+                <span class="hero__badge-dot"></span>
+                Open Source &middot; MIT License
+            </div>
+            <h1 class="hero__title">
+                Your Drivers.<br>
+                <span class="hero__title--accent">Under Your Control.</span>
+            </h1>
+            <p class="hero__subtitle">
+                OpenDriverUpdater scans your Windows hardware, finds official driver updates from trusted sources like
+                Microsoft Catalog, and lets you install them safely — all without ads, bloat, or tracking.
+            </p>
+            <div class="hero__actions">
+                <a href="https://github.com/OpenDriverUpdater/OpenDriverUpdater/releases/latest"
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                        <polyline points="7 10 12 15 17 10" />
+                        <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                    Download Now
+                </a>
+                <a href="https://github.com/OpenDriverUpdater" class="btn btn--ghost" id="hero-github" target="_blank"
+                    rel="noopener">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
+                    </svg>
+                    View on GitHub
+                </a>
+            </div>
+            <div class="hero__stats">
+                <div class="hero__stat">
+                    <span class="hero__stat-value">100%</span>
+                    <span class="hero__stat-label">Free & Open Source</span>
+                </div>
+                <div class="hero__stat-divider"></div>
+                <div class="hero__stat">
+                    <span class="hero__stat-value">0</span>
+                    <span class="hero__stat-label">Ads or Trackers</span>
+                </div>
+                <div class="hero__stat-divider"></div>
+                <div class="hero__stat">
+                    <span class="hero__stat-value">MIT</span>
+                    <span class="hero__stat-label">Licensed</span>
+                </div>
+            </div>
+        </div>
+        <div class="hero__visual">
+            <div class="hero__window">
+                <div class="hero__window-bar">
+                    <span></span><span></span><span></span>
+                    <span class="hero__window-title">OpenDriverUpdater</span>
+                </div>
+                <div class="hero__window-body">
+                    <div class="hero__terminal-line" data-delay="0">
+                        <span class="t-prompt">$</span> odu scan
+                    </div>
+                    <div class="hero__terminal-line" data-delay="1">
+                        <span class="t-info">ℹ</span> Scanning devices...
+                    </div>
+                    <div class="hero__terminal-line" data-delay="2">
+                        <span class="t-success">✓</span> Found <span class="t-accent">24 devices</span>
+                    </div>
+                    <div class="hero__terminal-line" data-delay="3">
+                        <span class="t-success">✓</span> <span class="t-accent">3 updates</span> available
+                    </div>
+                    <div class="hero__terminal-line" data-delay="4">
+                        <span class="t-prompt">$</span> odu check-updates
+                    </div>
+                    <div class="hero__terminal-line hero__terminal-table" data-delay="5">
+                        <span class="t-dim">Device</span> <span class="t-dim">Current</span> <span
+                            class="t-dim">Available</span> <span class="t-dim">Trust</span>
+                    </div>
+                    <div class="hero__terminal-line" data-delay="6">
+                        Intel UHD 770 31.0.101 <span class="t-accent">32.0.101</span> <span
+                            class="t-trusted">Trusted</span>
+                    </div>
+                    <div class="hero__terminal-line" data-delay="7">
+                        Realtek Audio 6.0.9285 <span class="t-accent">6.0.9456</span> <span
+                            class="t-trusted">Trusted</span>
+                    </div>
+                    <div class="hero__terminal-line" data-delay="8">
+                        Intel WiFi 6E 22.240.0 <span class="t-accent">23.10.0</span> <span
+                            class="t-trusted">Trusted</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════ FEATURES ═══════════════════ -->
+    <section class="features" id="features">
+        <div class="section__inner">
+            <div class="section__header">
+                <span class="section__label">Features</span>
+                <h2 class="section__title">Everything you need.<br>Nothing you don't.</h2>
+                <p class="section__desc">Built to do one thing perfectly — keep your drivers updated safely.</p>
+            </div>
+            <div class="features__grid">
+                <div class="feature-card" id="feature-scan">
+                    <div class="feature-card__icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8" />
+                            <path d="M21 21l-4.35-4.35" />
+                            <path d="M11 8v6" />
+                            <path d="M8 11h6" />
+                        </svg>
+                    </div>
+                    <h3>Automatic Hardware Detection</h3>
+                    <p>Scans your entire system using WMI and PnP APIs. Identifies every device, extracts Hardware IDs,
+                        and maps installed driver versions — automatically.</p>
+                </div>
+                <div class="feature-card" id="feature-safe">
+                    <div class="feature-card__icon feature-card__icon--green">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                            <path d="M9 12l2 2 4-4" />
+                        </svg>
+                    </div>
+                    <h3>Safe Update Recommendations</h3>
+                    <p>Every driver candidate gets a trust score based on source authenticity, digital signature, OEM
+                        compatibility, and stability. No guesswork.</p>
+                </div>
+                <div class="feature-card" id="feature-catalog">
+                    <div class="feature-card__icon feature-card__icon--blue">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="3" width="20" height="14" rx="2" />
+                            <line x1="8" y1="21" x2="16" y2="21" />
+                            <line x1="12" y1="17" x2="12" y2="21" />
+                        </svg>
+                    </div>
+                    <h3>Microsoft Catalog Lookup</h3>
+                    <p>Queries Microsoft Update Catalog directly — the same source Windows Update uses. Official,
+                        signed, and vendor-approved drivers only.</p>
+                </div>
+                <div class="feature-card" id="feature-ui">
+                    <div class="feature-card__icon feature-card__icon--purple">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="18" height="18" rx="2" />
+                            <path d="M3 9h18" />
+                            <path d="M9 21V9" />
+                        </svg>
+                    </div>
+                    <h3>Modern WinUI Interface</h3>
+                    <p>Native WinUI 3 desktop app with a clean, dark-themed interface. NavigationView shell, device
+                        cards, update recommendations — polished and fast.</p>
+                </div>
+                <div class="feature-card feature-card--wide" id="feature-clean">
+                    <div class="feature-card__icon feature-card__icon--red">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
+                        </svg>
+                    </div>
+                    <h3>No Ads. No Bloat. No Tracking.</h3>
+                    <p>Other driver updaters ship with bundled software, upsells, and telemetry. OpenDriverUpdater ships
+                        with none. Your system, your data, your choice.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════ WHY OPEN SOURCE ═══════════════════ -->
+    <section class="opensource" id="opensource">
+        <div class="section__inner">
+            <div class="section__header">
+                <span class="section__label">Why Open Source</span>
+                <h2 class="section__title">Trust is earned,<br>not promised.</h2>
+            </div>
+            <div class="opensource__grid">
+                <div class="opensource__card" id="os-transparency">
+                    <div class="opensource__number">01</div>
+                    <h3>Full Transparency</h3>
+                    <p>Every line of code is public. Every algorithm, every network request, every file operation —
+                        auditable by anyone, anytime.</p>
+                </div>
+                <div class="opensource__card" id="os-community">
+                    <div class="opensource__number">02</div>
+                    <h3>Community Trust</h3>
+                    <p>Driver updaters touch sensitive system components. You deserve to know exactly what's running on
+                        your machine. The community verifies what marketing can't.</p>
+                </div>
+                <div class="opensource__card" id="os-security">
+                    <div class="opensource__number">03</div>
+                    <h3>Security Through Visibility</h3>
+                    <p>Closed-source driver tools are black boxes. Open source means vulnerabilities are found and fixed
+                        faster — by the same people who use the software.</p>
+                </div>
+                <div class="opensource__card" id="os-free">
+                    <div class="opensource__number">04</div>
+                    <h3>Free Forever</h3>
+                    <p>MIT licensed. No premium tiers, no "pro" versions, no feature gates. The full application is free
+                        — today, tomorrow, always.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════ HOW IT WORKS ═══════════════════ -->
+    <section class="how-it-works" id="how-it-works">
+        <div class="section__inner">
+            <div class="section__header">
+                <span class="section__label">How It Works</span>
+                <h2 class="section__title">Four steps to<br>updated drivers.</h2>
+            </div>
+            <div class="steps">
+                <div class="step" id="step-scan">
+                    <div class="step__number">1</div>
+                    <div class="step__content">
+                        <h3>Scan Devices</h3>
+                        <p>OpenDriverUpdater queries your system via WMI and PnP APIs to identify every connected device
+                            — GPUs, network adapters, audio controllers, and more.</p>
+                    </div>
+                    <div class="step__line"></div>
+                </div>
+                <div class="step" id="step-match">
+                    <div class="step__number">2</div>
+                    <div class="step__content">
+                        <h3>Match Hardware IDs</h3>
+                        <p>Each device's Hardware ID is extracted and used to search official sources. No guessing, no
+                            generic drivers — precise matching to your exact hardware.</p>
+                    </div>
+                    <div class="step__line"></div>
+                </div>
+                <div class="step" id="step-find">
+                    <div class="step__number">3</div>
+                    <div class="step__content">
+                        <h3>Find Official Drivers</h3>
+                        <p>The Microsoft Update Catalog is queried first — the same source Windows Update
+                            uses. Intel, AMD, and NVIDIA vendor integrations are under development and are
+                            not active yet. Every candidate is scored for trust and compatibility.</p>
+                    </div>
+                    <div class="step__line"></div>
+                </div>
+                <div class="step" id="step-install">
+                    <div class="step__number">4</div>
+                    <div class="step__content">
+                        <h3>Download & Install Safely</h3>
+                        <p>Review recommendations, download selected drivers, and install via pnputil — the same tool
+                            Windows uses internally. You approve every action.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════ SAFETY ═══════════════════ -->
+    <section class="safety" id="safety">
+        <div class="section__inner">
+            <div class="safety__layout">
+                <div class="safety__text">
+                    <span class="section__label">Safety First</span>
+                    <h2 class="section__title">Your system,<br>protected.</h2>
+                    <p class="section__desc">OpenDriverUpdater never installs anything without your explicit approval.
+                        Every driver goes through a multi-layer trust evaluation before it's even recommended.</p>
+                    <ul class="safety__list">
+                        <li id="safety-official">
+                            <div class="safety__icon">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
+                                    <polyline points="22 4 12 14.01 9 11.01" />
+                                </svg>
+                            </div>
+                            <div>
+                                <strong>Official Sources Only</strong>
+                                <span>Drivers come from the Microsoft Update Catalog — the same source Windows
+                                    Update uses. No third-party repositories.</span>
+                            </div>
+                        </li>
+                        <li id="safety-trust">
+                            <div class="safety__icon">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <strong>Trust Scoring Engine</strong>
+                                <span>Each candidate is scored on source authenticity, digital signature, OEM match,
+                                    stability, and hardware compatibility.</span>
+                            </div>
+                        </li>
+                        <li id="safety-reject">
+                            <div class="safety__icon">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <line x1="15" y1="9" x2="9" y2="15" />
+                                    <line x1="9" y1="9" x2="15" y2="15" />
+                                </svg>
+                            </div>
+                            <div>
+                                <strong>Unsafe Packages Rejected</strong>
+                                <span>Unsigned, beta, and blacklisted drivers are flagged. Untrusted packages are never
+                                    recommended by default.</span>
+                            </div>
+                        </li>
+                        <li id="safety-control">
+                            <div class="safety__icon">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                                    <path d="M7 11V7a5 5 0 0110 0v4" />
+                                </svg>
+                            </div>
+                            <div>
+                                <strong>You Decide Everything</strong>
+                                <span>Nothing is downloaded or installed automatically. You review, approve, and control
+                                    every step.</span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="safety__visual">
+                    <div class="trust-card">
+                        <div class="trust-card__header">Trust Score</div>
+                        <div class="trust-card__score">55<span>/55</span></div>
+                        <div class="trust-card__level trust-card__level--trusted">TRUSTED</div>
+                        <div class="trust-card__details">
+                            <div class="trust-card__row"><span>Official Source</span><span class="t-success">+30</span>
+                            </div>
+                            <div class="trust-card__row"><span>Stable Release</span><span class="t-success">+15</span>
+                            </div>
+                            <div class="trust-card__row"><span>Hardware ID Match</span><span class="t-success">+10</span>
+                            </div>
+                            <div class="trust-card__row"><span>Source reports signed</span><span class="t-dim">+0
+                                    (claim)</span></div>
+                            <div class="trust-card__row"><span>Hash verified + signature validated</span><span
+                                    class="t-verified">→ VERIFIED</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════ CLI ═══════════════════ -->
+    <section class="cli" id="cli">
+        <div class="section__inner">
+            <div class="section__header">
+                <span class="section__label">For Advanced Users</span>
+                <h2 class="section__title">Power meets<br>the terminal.</h2>
+                <p class="section__desc">Same Core engine, terminal interface. Perfect for scripting, automation, and
+                    headless environments.</p>
+            </div>
+            <div class="cli__grid">
+                <div class="cli__terminal">
+                    <div class="hero__window-bar">
+                        <span></span><span></span><span></span>
+                        <span class="hero__window-title">PowerShell</span>
+                    </div>
+                    <div class="hero__window-body">
+                        <div class="hero__terminal-line"><span class="t-prompt">$</span> odu scan</div>
+                        <div class="hero__terminal-line"><span class="t-prompt">$</span> odu list-devices --filter GPU
+                        </div>
+                        <div class="hero__terminal-line"><span class="t-prompt">$</span> odu check-updates</div>
+                        <div class="hero__terminal-line"><span class="t-prompt">$</span> odu download "PCI\VEN_8086"
+                        </div>
+                        <div class="hero__terminal-line"><span class="t-prompt">$</span> odu install ./driver.inf</div>
+                        <div class="hero__terminal-line"><span class="t-prompt">$</span> odu export-json --output
+                            report.json</div>
+                    </div>
+                </div>
+                <div class="cli__features">
+                    <div class="cli__feature" id="cli-commands">
+                        <h4>6 Built-in Commands</h4>
+                        <p>scan, list-devices, check-updates, download, install, export-json — everything you need from
+                            the command line.</p>
+                    </div>
+                    <div class="cli__feature" id="cli-automation">
+                        <h4>Automation Ready</h4>
+                        <p>Pipe outputs, chain commands, integrate into CI/CD or system provisioning scripts. Exit codes
+                            and JSON output included.</p>
+                    </div>
+                    <div class="cli__feature" id="cli-diagnostics">
+                        <h4>Advanced Diagnostics</h4>
+                        <p>Export full scan results as structured JSON. Debug hardware matching, review trust scores,
+                            and analyze driver metadata.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════ CTA BANNER ═══════════════════ -->
+    <section class="cta-banner" id="cta-banner">
+        <div class="section__inner">
+            <div class="cta-banner__content">
+                <h2>Ready to take control of your drivers?</h2>
+                <p>Download OpenDriverUpdater — it's free, it's open source, and it respects your system.</p>
+                <div class="hero__actions">
+                    <a href="https://github.com/OpenDriverUpdater/OpenDriverUpdater/releases/latest"
+                        class="btn btn--primary btn--lg">Download Now</a>
+                    <a href="https://github.com/OpenDriverUpdater/OpenDriverUpdater" class="btn btn--ghost btn--lg"
+                        target="_blank" rel="noopener">Star on GitHub</a>
+                    <a href="https://odu.crty-dev.com/" class="btn btn--ghost btn--lg" target="_blank"
+                        rel="noopener">Organization Site</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════ FOOTER ═══════════════════ -->
+    <footer class="footer" id="footer">
+        <div class="footer__inner">
+            <div class="footer__brand">
+                <img src="img/logo_odu-removebg.png" alt="ODU" class="footer__logo">
+                <span class="footer__name">OpenDriverUpdater</span>
+                <p class="footer__tagline">Free & open-source Windows driver updater.<br>Built by the community, for the
+                    community.</p>
+            </div>
+            <div class="footer__links">
+                <div class="footer__col">
+                    <h4>Project</h4>
+                    <a href="#features">Features</a>
+                    <a href="#how-it-works">How it Works</a>
+                    <a href="#safety">Safety</a>
+                    <a href="#cli">CLI</a>
+                </div>
+                <div class="footer__col">
+                    <h4>Community</h4>
+                    <a href="https://github.com/OpenDriverUpdater/OpenDriverUpdater" target="_blank"
+                        rel="noopener">GitHub Repository</a>
+                    <a href="https://github.com/OpenDriverUpdater/OpenDriverUpdater/issues" target="_blank"
+                        rel="noopener">Report an Issue</a>
+                    <a href="https://github.com/OpenDriverUpdater/OpenDriverUpdater/blob/main/CONTRIBUTING.md"
+                        target="_blank" rel="noopener">Contribute</a>
+                </div>
+                <div class="footer__col">
+                    <h4>Legal</h4>
+                    <a href="https://github.com/OpenDriverUpdater/OpenDriverUpdater/blob/main/LICENSE"
+                        target="_blank" rel="noopener">MIT License</a>
+                    <a href="privacy.html">Privacy — We Don't Collect Data</a>
+                    <a href="https://www.virustotal.com/gui/file/384b1532ef8f9f2368ad1e5ac63a0dc11fd2da8e9b53b479c159eced5cb9f79f/detection"
+                        target="_blank" rel="noopener">VirusTotal Detection Report</a>
+                </div>
+            </div>
+            <div class="footer__bottom">
+                <p>&copy; 2026 OpenDriverUpdater Contributors. MIT License.</p>
+                <p>Made with precision by the open-source community.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
