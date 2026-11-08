@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using OpenDriverUpdater.Core.Interfaces;
 using Serilog;
 
@@ -8,6 +9,14 @@ namespace OpenDriverUpdater.Infrastructure.Logging;
 /// </summary>
 public sealed class SerilogLoggerService : ILoggerService
 {
+    private static readonly Regex SensitiveKeywordPattern = new(
+        "(password|passwd|pwd|secret|token|apikey|api_key|accesskey|access_key|privatekey|private_key|connectionstring|connection_string|authorization|bearer)",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant | RegexOptions.Compiled);
+
+    private static readonly Regex LongTokenLikePattern = new(
+        "^[A-Za-z0-9+/=_\\-]{24,}$",
+        RegexOptions.CultureInvariant | RegexOptions.Compiled);
+
     private readonly ILogger _logger;
 
     public SerilogLoggerService(string logDirectory)
@@ -57,6 +66,11 @@ public sealed class SerilogLoggerService : ILoggerService
     {
         if (value is string text)
         {
+            if (LooksSensitive(text))
+            {
+                return "[REDACTED]";
+            }
+
             if (Path.IsPathRooted(text) || text.Contains(Path.DirectorySeparatorChar) || text.Contains(Path.AltDirectorySeparatorChar))
             {
                 var fileName = Path.GetFileName(text);
@@ -65,5 +79,20 @@ public sealed class SerilogLoggerService : ILoggerService
         }
 
         return value;
+    }
+
+    private static bool LooksSensitive(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            return false;
+        }
+
+        if (SensitiveKeywordPattern.IsMatch(text))
+        {
+            return true;
+        }
+
+        return LongTokenLikePattern.IsMatch(text);
     }
 }
