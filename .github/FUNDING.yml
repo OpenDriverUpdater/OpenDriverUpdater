@@ -7,7 +7,7 @@ open_collective: opendriverupdater
 
 # GitHub Sponsors
 # Enable when GitHub Sponsors is activated for CRTYPUBG.
-github: [CRTYPUBG]
+github: CRTYPUBG
 
 # Other supported funding platforms
 # patreon:
@@ -15,7 +15,7 @@ github: [CRTYPUBG]
 # liberapay:
 buy_me_a_coffee: crtydev
 # polar:
-# thanks_dev:
+thanks_dev: CRTYPUBG
 # issuehunt:
 # tidelift:
 # community_bridge:
