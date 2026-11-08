@@ -1,125 +1,281 @@
 # OpenDriverUpdater
 
 <p align="center">
-  <img src="img/banner_odu.jpg" alt="OpenDriverUpdater Banner" width="800" />
+  <img src="img/banner_odu.jpg" alt="OpenDriverUpdater banner" width="800" />
 </p>
 
-### Safe. Open. Transparent.
-The Driver Updater Windows Actually Needs.
+<p align="center">
+  <strong>Safe. Open. Transparent.</strong><br />
+  The Driver Updater Windows Actually Needs.
+</p>
+
+<p align="center">
+  <a href="https://github.com/OpenDriverUpdater/OpenDriverUpdater/actions/workflows/build.yml">
+    <img src="https://img.shields.io/github/actions/workflow/status/OpenDriverUpdater/OpenDriverUpdater/build.yml?branch=main&label=Build%20%26%20Test&style=for-the-badge" alt="Build and test status" />
+  </a>
+  <a href="https://github.com/OpenDriverUpdater/OpenDriverUpdater/releases">
+    <img src="https://img.shields.io/github/v/release/OpenDriverUpdater/OpenDriverUpdater?display_name=tag&style=for-the-badge" alt="Latest release" />
+  </a>
+  <a href="LICENSE">
+    <img src="https://img.shields.io/github/license/OpenDriverUpdater/OpenDriverUpdater?style=for-the-badge" alt="MIT License" />
+  </a>
+  <a href="https://dotnet.microsoft.com/">
+    <img src="https://img.shields.io/badge/.NET-8.0-512BD4?style=for-the-badge&logo=dotnet&logoColor=white" alt=".NET 8" />
+  </a>
+  <a href="https://learn.microsoft.com/en-us/windows/apps/winui/">
+    <img src="https://img.shields.io/badge/WinUI-3-0078D4?style=for-the-badge&logo=windows&logoColor=white" alt="WinUI 3" />
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/OpenDriverUpdater/OpenDriverUpdater/stargazers">
+    <img src="https://img.shields.io/github/stars/OpenDriverUpdater/OpenDriverUpdater?style=flat-square&logo=github" alt="GitHub stars" />
+  </a>
+  <a href="https://github.com/OpenDriverUpdater/OpenDriverUpdater/network/members">
+    <img src="https://img.shields.io/github/forks/OpenDriverUpdater/OpenDriverUpdater?style=flat-square&logo=github" alt="GitHub forks" />
+  </a>
+  <a href="https://github.com/OpenDriverUpdater/OpenDriverUpdater/graphs/contributors">
+    <img src="https://img.shields.io/github/contributors/OpenDriverUpdater/OpenDriverUpdater?style=flat-square" alt="Contributors" />
+  </a>
+  <a href="https://github.com/OpenDriverUpdater/OpenDriverUpdater/issues">
+    <img src="https://img.shields.io/github/issues/OpenDriverUpdater/OpenDriverUpdater?style=flat-square" alt="Open issues" />
+  </a>
+  <a href="https://github.com/OpenDriverUpdater/OpenDriverUpdater/commits/main">
+    <img src="https://img.shields.io/github/last-commit/OpenDriverUpdater/OpenDriverUpdater/main?style=flat-square" alt="Last commit" />
+  </a>
+  <a href="https://github.com/OpenDriverUpdater/OpenDriverUpdater/releases">
+    <img src="https://img.shields.io/github/downloads/OpenDriverUpdater/OpenDriverUpdater/total?style=flat-square" alt="Release downloads" />
+  </a>
+</p>
 
 ---
 
 ## 📸 Preview
 
-![OpenDriverUpdater Preview](./docs/630105071-3f859a3f-bd48-40b7-8a7d-ab79fffbe97a.png)
+<p align="center">
+  <img src="docs/630105071-3f859a3f-bd48-40b7-8a7d-ab79fffbe97a.png" alt="OpenDriverUpdater application preview" width="850" />
+</p>
 
-*Modern WinUI 3 Dashboard and CLI interface.*
+<p align="center"><em>A modern WinUI 3 dashboard and command-line interface for Windows driver management.</em></p>
 
----
+## ✨ About
 
-**OpenDriverUpdater** is a free, open-source Windows driver management tool designed with a focus on safety, transparency, and user control. It scans your hardware, finds official driver updates from trusted sources like the Microsoft Catalog, and lets you install them with confidence.
+**OpenDriverUpdater** is a free and open-source Windows driver management project built around safety, transparency, and user control.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![.NET 8](https://img.shields.io/badge/.NET-8.0-purple.svg)](https://dotnet.microsoft.com/)
-[![WinUI 3](https://img.shields.io/badge/WinUI-3-0078D4.svg)](https://learn.microsoft.com/en-us/windows/apps/winui/)
+It helps users identify their hardware, find relevant driver updates from trusted sources, verify downloaded packages, and manage installations using native Windows tools.
 
----
+Our goal is to provide a lightweight, privacy-respecting alternative to commercial driver updater utilities.
 
-## ✨ Features
+### Our principles
 
-* 🔍 **Automatic Hardware Detection**: Scans devices using WMI and PnP APIs.
-* 🧠 **Smart Driver Matching**: Precise matching based on Hardware IDs.
-* 🛡️ **Safe Recommendations**: Multi-layer trust scoring for every candidate.
-* 🌐 **Official Sources**: Queries Microsoft Update Catalog, Intel, AMD, and NVIDIA.
-* 🖥️ **Modern UI**: Native WinUI 3 interface with a premium dark theme.
-* 🧰 **CLI Support**: Full terminal interface for advanced users and automation.
-* 🚫 **Zero Bloat**: No ads, no tracking, no bundled software.
+- **Safety first** — prioritize trusted sources, signature validation, and file integrity.
+- **Transparency** — make driver information and installation actions understandable.
+- **User control** — users decide what to download and install.
+- **Privacy** — no advertisements, tracking, or bundled software.
+- **Open source** — MIT-licensed development with community contributions.
 
----
+## 🚀 Features
+
+| Feature | Description |
+| --- | --- |
+| 🔍 **Hardware detection** | Detects devices using Windows Management Instrumentation (WMI) and Plug and Play APIs. |
+| 🧠 **Smart driver matching** | Matches driver candidates using hardware IDs and device information. |
+| 🛡️ **Trust and safety checks** | Evaluates driver candidates and validates supported digital signatures. |
+| 🌐 **Trusted sources** | Integrates with Microsoft Update Catalog and official Intel, AMD, and NVIDIA sources. |
+| 🔐 **Download verification** | Supports secure downloads and SHA-256 integrity verification. |
+| 📦 **Driver installation** | Uses Windows `pnputil` for native driver package installation. |
+| 🖥️ **Desktop application** | Native WinUI 3 interface with a modern dark theme. |
+| 🧰 **Command-line interface** | CLI commands for scanning, checking, downloading, installing, and exporting results. |
+| 🧾 **Local history** | SQLite-backed storage for supported scan history and update records. |
+| 🚫 **No bloat** | No ads, tracking, or bundled third-party applications. |
+
+## 📊 Live project activity
+
+The badges and contributor panel below are generated from public GitHub repository data. They refresh automatically as GitHub updates repository activity. Third-party image services may cache results briefly.
+
+<p align="center">
+  <a href="https://github.com/OpenDriverUpdater/OpenDriverUpdater/graphs/contributors">
+    <img src="https://contrib.rocks/image?repo=OpenDriverUpdater/OpenDriverUpdater" alt="OpenDriverUpdater contributors" />
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/OpenDriverUpdater/OpenDriverUpdater/graphs/contributors">View contributor graph</a>
+  ·
+  <a href="https://github.com/OpenDriverUpdater/OpenDriverUpdater/graphs/commit-activity">View commit activity</a>
+  ·
+  <a href="https://github.com/OpenDriverUpdater/OpenDriverUpdater/pulse">View repository pulse</a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/OpenDriverUpdater/OpenDriverUpdater">
+    <img src="https://github-readme-stats.vercel.app/api/pin/?username=OpenDriverUpdater&repo=OpenDriverUpdater&show_owner=true&hide_border=true" alt="OpenDriverUpdater repository statistics" />
+  </a>
+</p>
+
+> These visualizations are external, automatically refreshed summaries. GitHub remains the source of truth for stars, forks, contributors, releases, and commit history.
 
 ## 🧱 Architecture
 
-```
+The solution is organized into independent layers to keep business logic, platform services, user interfaces, and tests maintainable.
+
+```text
 OpenDriverUpdater.sln
 ├── src/
-│   ├── OpenDriverUpdater.Core          # Pure business logic (Models, Interfaces, Services, Rules)
-│   ├── OpenDriverUpdater.Infrastructure # Windows API, Networking, Storage, Security
-│   ├── OpenDriverUpdater.App           # WinUI 3 Desktop Interface (MVVM)
-│   └── OpenDriverUpdater.Cli           # Console Interface
+│   ├── OpenDriverUpdater.Core           # Business logic, models, interfaces, and rules
+│   ├── OpenDriverUpdater.Infrastructure # Windows APIs, networking, storage, and security
+│   ├── OpenDriverUpdater.App            # WinUI 3 desktop application (MVVM)
+│   └── OpenDriverUpdater.Cli            # Command-line interface
 └── tests/
     ├── OpenDriverUpdater.Core.Tests
     └── OpenDriverUpdater.Infrastructure.Tests
 ```
 
-### Layer Breakdown
+| Layer | Responsibility | Dependencies |
+| --- | --- | --- |
+| **Core** | Business logic, models, interfaces, and rules | None |
+| **Infrastructure** | Windows APIs, networking, storage, and security services | Core |
+| **App** | Native WinUI 3 desktop interface using MVVM | Core, Infrastructure |
+| **CLI** | Command-line tools and automation | Core, Infrastructure |
+| **Tests** | Automated tests for core and infrastructure components | Relevant project layers |
 
-| Layer | Purpose | Dependencies |
-|-------|---------|-------------|
-| **Core** | Business logic, models, and interfaces | None |
-| **Infrastructure** | Platform-specific implementations (WMI, PnP, SQLite) | Core |
-| **App** | Modern desktop UI using WinUI 3 | Core, Infrastructure |
-| **CLI** | Terminal tool using System.CommandLine | Core, Infrastructure |
+## ⚙️ Requirements
 
----
+- Windows 10 or Windows 11 for the desktop driver-management application.
+- .NET 8 SDK.
+- Visual Studio 2022 with the **Windows application development** workload for the WinUI 3 app.
+- Administrator privileges may be required for certain device and driver operations.
 
-## 🚀 Quick Start
+The CLI and selected non-UI components are also built and tested on Linux in CI. Linux support does not mean the Windows driver installation features are available on Linux.
+
+## 🚀 Build and run
+
+Clone the repository:
 
 ```powershell
-# Build the Core, Infrastructure, and CLI
-dotnet build OpenDriverUpdater.sln
+git clone https://github.com/OpenDriverUpdater/OpenDriverUpdater.git
+cd OpenDriverUpdater
+```
 
-# Run the CLI
+Build the solution and run tests:
+
+```powershell
+dotnet restore OpenDriverUpdater.sln
+dotnet build OpenDriverUpdater.sln -c Release
+dotnet test OpenDriverUpdater.sln -c Release
+```
+
+Run a CLI scan:
+
+```powershell
 dotnet run --project src/OpenDriverUpdater.Cli -- scan
-
-# Run Unit Tests
-dotnet test
 ```
 
 > [!IMPORTANT]
-> **WinUI 3 App**: To build and run the desktop application (`OpenDriverUpdater.App`), use **Visual Studio 2022** with the **Windows app development** workload (Windows App SDK) installed. The standard .NET CLI does not natively support building WinUI 3 projects without additional SDK components.
+> **Building the WinUI 3 desktop application:** use Visual Studio 2022 with the Windows application development workload and Windows App SDK installed. The standard .NET CLI may not build the WinUI project on a machine without the required Windows development components.
 
-
-## 🛠️ CLI Commands
+## 🛠️ CLI commands
 
 | Command | Description |
-|---------|-------------|
-| `scan` | Scan system for devices |
-| `list-devices` | List detected hardware with details |
-| `check-updates` | Search for available driver updates |
-| `download <id>` | Download a specific driver package |
-| `install <path>` | Install a driver using pnputil |
-| `export-json` | Export scan results to JSON |
+| --- | --- |
+| `scan` | Scan the system for connected devices. |
+| `list-devices` | List detected hardware and device details. |
+| `check-updates` | Search for available driver updates. |
+| `download <id>` | Download a selected driver package. |
+| `install <path>` | Install a driver package using `pnputil`. |
+| `export-json` | Export scan results to JSON. |
 
----
+Run `--help` with the CLI to inspect the options available in your current build.
 
-## 🗺️ MVP Roadmap
+## 🔄 Continuous integration
 
-### Phase 1 ✅
-- Device scanning (WMI + PnP)
-- Hardware ID extraction & matching
-- Microsoft Catalog integration
-- Native WinUI 3 & CLI interfaces
+GitHub Actions runs the repository's **Cross-Platform Build & Test** workflow:
 
-### Phase 2 (Intelligence & Utility) 🛠️ ✅
-- **Noise Reduction**: Implement filters for Microsoft generic devices and ACPI system spam.
-- **Smart Grouping**: Group duplicate entries (e.g., multi-core processors) to provide a cleaner view.
-- **Improved Categorization**: Refine `DeviceClass` detection to reduce "Unknown" entries for standard components.
-- **Priority View**: Highlight "Important Devices" (GPU, WiFi, Audio, Storage) first.
-- **Download Manager**: Secure streaming downloads with SHA256 verification.
+- **Windows:** restores and builds the solution, runs tests, and publishes the Windows application artifact.
+- **Linux:** builds the supported cross-platform projects, runs core tests, and publishes the Linux CLI artifact.
+- **Pull requests and pushes to `main`:** trigger automated build and test checks.
 
-### Phase 3 (Installation & Safety) 🛡️✅
-- **Authenticode Validation**: Signature verification engine.
-- **Automated Installation**: Implementation via `pnputil`.
-- **System Safety**: Automatic restore point creation and rollback support.
-- **Expanded Sources**: OEM support for Intel, AMD, and NVIDIA.
-- **Local Database**: SQLite storage for scan history and update logs.
+The release-publishing job is intentionally disabled until release signing and distribution requirements are fully configured. Published releases are available on the [Releases page](https://github.com/OpenDriverUpdater/OpenDriverUpdater/releases).
 
----
+[![Build and test workflow](https://img.shields.io/github/actions/workflow/status/OpenDriverUpdater/OpenDriverUpdater/build.yml?branch=main&label=Build%20%26%20Test&style=flat-square)](https://github.com/OpenDriverUpdater/OpenDriverUpdater/actions/workflows/build.yml)
+
+## 🗺️ Roadmap
+
+The roadmap reflects the project's current development plan. Items may be refined as security reviews, testing, and community feedback progress.
+
+### Phase 1 — Foundation ✅
+
+- [x] Device scanning through WMI and Plug and Play APIs.
+- [x] Hardware ID extraction and matching.
+- [x] Microsoft Update Catalog integration.
+- [x] Initial WinUI 3 desktop application and CLI.
+
+### Phase 2 — Intelligence and utility ✅
+
+- [x] Reduce noise from generic Microsoft and ACPI devices.
+- [x] Group duplicate and related device entries.
+- [x] Improve device-class categorization.
+- [x] Prioritize important device categories such as GPU, Wi-Fi, audio, and storage.
+- [x] Add secure streaming downloads and SHA-256 verification.
+
+### Phase 3 — Installation and safety ✅
+
+- [x] Authenticode signature-validation engine.
+- [x] Driver installation through native `pnputil`.
+- [x] System safety and recovery-related functionality.
+- [x] Additional vendor driver-source integrations.
+- [x] SQLite-based local history and update records.
+
+### Ongoing work
+
+- [ ] Continue improving hardware and driver matching accuracy.
+- [ ] Expand automated tests and security review coverage.
+- [ ] Improve documentation and troubleshooting guidance.
+- [ ] Make the contribution process easier for new developers.
+- [ ] Prepare signed, verifiable release distribution.
 
 ## 🤝 Contributing
 
-We welcome contributions! Please feel free to open issues or submit pull requests.
+Contributions are welcome — bug reports, documentation improvements, testing, and code contributions all help the project.
+
+1. Read [CONTRIBUTING.md](CONTRIBUTING.md).
+2. Check existing [issues](https://github.com/OpenDriverUpdater/OpenDriverUpdater/issues) or open a new one.
+3. Fork the repository and create a focused branch.
+4. Make your changes and run the relevant build and tests.
+5. Submit a pull request with a clear description of the change.
+
+<p align="center">
+  <a href="https://github.com/OpenDriverUpdater/OpenDriverUpdater/graphs/contributors">
+    <img src="https://img.shields.io/github/contributors/OpenDriverUpdater/OpenDriverUpdater?label=Project%20contributors&style=for-the-badge" alt="Project contributors" />
+  </a>
+  <a href="https://github.com/OpenDriverUpdater/OpenDriverUpdater/pulls">
+    <img src="https://img.shields.io/badge/Contributions-Pull%20Requests-2ea44f?style=for-the-badge&logo=github" alt="Submit a pull request" />
+  </a>
+</p>
+
+Please also review our [Code of Conduct](CODE_OF_CONDUCT.md) and [Security Policy](SECURITY.md).
+
+## 🔐 Security
+
+If you discover a security vulnerability, please do not disclose it in a public issue. Follow the responsible disclosure instructions in [SECURITY.md](SECURITY.md).
 
 ## 📜 License
 
-MIT © OpenDriverUpdater Contributors
+OpenDriverUpdater is released under the [MIT License](LICENSE).
+
+Copyright © OpenDriverUpdater Contributors.
+
+## 🔗 Links
+
+- **Website:** https://odu.crty-dev.com
+- **GitHub organization:** https://github.com/OpenDriverUpdater
+- **Source code:** https://github.com/OpenDriverUpdater/OpenDriverUpdater
+- **Issues and bug reports:** https://github.com/OpenDriverUpdater/OpenDriverUpdater/issues
+- **Releases:** https://github.com/OpenDriverUpdater/OpenDriverUpdater/releases
+
+---
+
+<p align="center">
+  <strong>Safe. Open. Transparent.</strong><br />
+  Built for Windows users. Improved by the open-source community.
+</p>
