@@ -64,6 +64,11 @@ public sealed class SerilogLoggerService : ILoggerService
 
     private static object SanitizeValue(object value)
     {
+        if (value is null)
+        {
+            return "[REDACTED]";
+        }
+
         if (value is string text)
         {
             if (LooksSensitive(text))
@@ -76,6 +81,8 @@ public sealed class SerilogLoggerService : ILoggerService
                 var fileName = Path.GetFileName(text);
                 return string.IsNullOrWhiteSpace(fileName) ? "[REDACTED]" : fileName;
             }
+
+            return string.IsNullOrWhiteSpace(text) ? string.Empty : "[REDACTED]";
         }
 
         return value;
