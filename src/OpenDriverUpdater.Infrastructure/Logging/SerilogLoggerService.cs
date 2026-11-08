@@ -78,8 +78,7 @@ public sealed class SerilogLoggerService : ILoggerService
 
             if (Path.IsPathRooted(text) || text.Contains(Path.DirectorySeparatorChar) || text.Contains(Path.AltDirectorySeparatorChar))
             {
-                var fileName = Path.GetFileName(text);
-                return string.IsNullOrWhiteSpace(fileName) ? "[REDACTED]" : fileName;
+                return "[REDACTED_PATH]";
             }
 
             return string.IsNullOrWhiteSpace(text) ? string.Empty : "[REDACTED]";
