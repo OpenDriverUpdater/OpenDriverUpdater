@@ -25,14 +25,38 @@ public sealed class SerilogLoggerService : ILoggerService
             .CreateLogger();
     }
 
-    public void Info(string message, params object[] args) => _logger.Information(message, args);
-    public void Warn(string message, params object[] args) => _logger.Warning(message, args);
+    private static object[] SanitizeArgs(object[] args)
+    {
+        if (args.Length == 0)
+        {
+            return args;
+        }
+
+        var sanitized = new object[args.Length];
+        for (var i = 0; i < args.Length; i++)
+        {
+            if (args[i] is string s && (s.Contains(Path.DirectorySeparatorChar) || s.Contains(Path.AltDirectorySeparatorChar)))
+            {
+                sanitized[i] = "[REDACTED_PATH]";
+            }
+            else
+            {
+                sanitized[i] = args[i];
+            }
+        }
+
+        return sanitized;
+    }
+
+    public void Info(string message, params object[] args) => _logger.Information(message, SanitizeArgs(args));
+    public void Warn(string message, params object[] args) => _logger.Warning(message, SanitizeArgs(args));
     public void Error(string message, Exception? ex = null, params object[] args)
     {
+        var sanitizedArgs = SanitizeArgs(args);
         if (ex is not null)
-            _logger.Error(ex, message, args);
+            _logger.Error(ex, message, sanitizedArgs);
         else
-            _logger.Error(message, args);
+            _logger.Error(message, sanitizedArgs);
     }
-    public void Debug(string message, params object[] args) => _logger.Debug(message, args);
+    public void Debug(string message, params object[] args) => _logger.Debug(message, SanitizeArgs(args));
 }
