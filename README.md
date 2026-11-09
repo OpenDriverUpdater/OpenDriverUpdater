@@ -62,7 +62,16 @@
 
 **OpenDriverUpdater** is a free and open-source Windows driver management project built around safety, transparency, and user control.
 
+<<<<<<< HEAD
 It helps users identify their hardware, find relevant driver updates from trusted sources, verify downloaded packages, and manage installations using native Windows tools.
+=======
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![.NET 8](https://img.shields.io/badge/.NET-8.0-purple.svg)](https://dotnet.microsoft.com/)
+[![WinUI 3](https://img.shields.io/badge/WinUI-3-0078D4.svg)](https://learn.microsoft.com/en-us/windows/apps/winui/)
+[![GitHub](https://img.shields.io/badge/GitHub-OpenDriverUpdater-blue?logo=github)](https://github.com/OpenDriverUpdater/OpenDriverUpdater)
+[![Website](https://img.shields.io/badge/Website-odu.crty.dev-green?logo=google-chrome)](https://odu.crty-dev.com/)
+[![VirusTotal](https://img.shields.io/badge/VirusTotal-Scan-darkgreen?logo=virustotal)](https://www.virustotal.com/gui/file/384b1532ef8f9f2368ad1e5ac63a0dc11fd2da8e9b53b479c159eced5cb9f79f/detection)
+>>>>>>> 5e17f29 (feat: add GitHub, website, and VirusTotal badges to README)
 
 Our goal is to provide a lightweight, privacy-respecting alternative to commercial driver updater utilities.
 
