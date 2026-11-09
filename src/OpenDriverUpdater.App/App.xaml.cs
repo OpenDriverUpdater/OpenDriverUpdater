@@ -24,6 +24,13 @@ public partial class App : Application
     public static IReadOnlyList<IDriverSource> DriverSources { get; private set; } = null!;
     public static IDiscordPresence DiscordPresence { get; private set; } = null!;
 
+    /// <summary>
+    /// Discord Developer Portal Application ID / Client ID.
+    /// Bu uygulama kimliği Discord Rich Presence'ı etkinleştirmek için gereklidir.
+    /// Gizli değildir; Discord bot/istemci kimliğidir.
+    /// </summary>
+    private const string DiscordApplicationId = "1568505926086955078";
+
     public App()
     {
         Environment.SetEnvironmentVariable("MICROSOFT_WINDOWSAPPRUNTIME_BASE_DIRECTORY", AppContext.BaseDirectory);
@@ -35,7 +42,17 @@ public partial class App : Application
         InitializeServices();
 
         _window = new MainWindow();
+        _window.Closed += OnMainWindowClosed;
         _window.Activate();
+    }
+
+    private void OnMainWindowClosed(object sender, WindowEventArgs args)
+    {
+        // Uygulama kapanınca Discord durumunu temizle ve bağlantıyı kapat.
+        if (DiscordPresence is IDisposable disposable)
+        {
+            disposable.Dispose();
+        }
     }
 
     private static void InitializeServices()
@@ -78,10 +95,10 @@ public partial class App : Application
         DownloadManager = new HttpDownloadManager(downloadClient, Logger);
         Installer = new OpenDriverUpdater.Infrastructure.Install.PnpUtilInstaller(Logger);
 
-        // Discord Rich Presence — yalnızca ODU_DISCORD_APP_ID ayarlandığında etkin.
-        var discordAppId = Environment.GetEnvironmentVariable("ODU_DISCORD_APP_ID");
-        DiscordPresence = new DiscordPresenceService(
-            discordAppId,
-            !string.IsNullOrWhiteSpace(discordAppId));
+        // Discord Rich Presence — varsayılan olarak etkin (otomatik başlar, kapanınca kapanır).
+        // İsteğe bağlı override: ODU_DISCORD_APP_ID ortam değişkeni.
+        var discordAppId = Environment.GetEnvironmentVariable("ODU_DISCORD_APP_ID")
+            ?? DiscordApplicationId;
+        DiscordPresence = new DiscordPresenceService(discordAppId, enabled: true);
     }
 }
