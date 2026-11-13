@@ -55,33 +55,34 @@ public sealed class SerilogLoggerService : ILoggerService
 
     private static object SanitizeValue(object value)
     {
-        if (value is string text)
+        if (value is null)
         {
-            if (string.IsNullOrWhiteSpace(text))
-            {
-                return "[REDACTED]";
-            }
-
-            if (Path.IsPathRooted(text) || text.Contains(Path.DirectorySeparatorChar) || text.Contains(Path.AltDirectorySeparatorChar))
-            {
-                var fileName = Path.GetFileName(text);
-                return string.IsNullOrWhiteSpace(fileName) ? "[REDACTED]" : fileName;
-            }
-
-            if (text.Contains("password", StringComparison.OrdinalIgnoreCase) ||
-                text.Contains("token", StringComparison.OrdinalIgnoreCase) ||
-                text.Contains("secret", StringComparison.OrdinalIgnoreCase) ||
-                text.Contains("apikey", StringComparison.OrdinalIgnoreCase) ||
-                text.Contains("api_key", StringComparison.OrdinalIgnoreCase) ||
-                text.Contains("privatekey", StringComparison.OrdinalIgnoreCase) ||
-                text.Contains("private_key", StringComparison.OrdinalIgnoreCase))
-            {
-                return "[REDACTED]";
-            }
-
-            return text.Length <= 8 ? "[REDACTED]" : $"{text[..2]}***{text[^2..]}";
+            return "[REDACTED]";
         }
 
-        return value;
+        var text = Convert.ToString(value);
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            return "[REDACTED]";
+        }
+
+        if (Path.IsPathRooted(text) || text.Contains(Path.DirectorySeparatorChar) || text.Contains(Path.AltDirectorySeparatorChar))
+        {
+            var fileName = Path.GetFileName(text);
+            return string.IsNullOrWhiteSpace(fileName) ? "[REDACTED]" : fileName;
+        }
+
+        if (text.Contains("password", StringComparison.OrdinalIgnoreCase) ||
+            text.Contains("token", StringComparison.OrdinalIgnoreCase) ||
+            text.Contains("secret", StringComparison.OrdinalIgnoreCase) ||
+            text.Contains("apikey", StringComparison.OrdinalIgnoreCase) ||
+            text.Contains("api_key", StringComparison.OrdinalIgnoreCase) ||
+            text.Contains("privatekey", StringComparison.OrdinalIgnoreCase) ||
+            text.Contains("private_key", StringComparison.OrdinalIgnoreCase))
+        {
+            return "[REDACTED]";
+        }
+
+        return text.Length <= 8 ? "[REDACTED]" : $"{text[..2]}***{text[^2..]}";
     }
 }
