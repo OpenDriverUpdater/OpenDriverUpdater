@@ -25,14 +25,45 @@ public sealed class SerilogLoggerService : ILoggerService
             .CreateLogger();
     }
 
-    public void Info(string message, params object[] args) => _logger.Information(message, args);
-    public void Warn(string message, params object[] args) => _logger.Warning(message, args);
+    public void Info(string message, params object[] args) => _logger.Information(message, SanitizeArgs(args));
+    public void Warn(string message, params object[] args) => _logger.Warning(message, SanitizeArgs(args));
     public void Error(string message, Exception? ex = null, params object[] args)
     {
+        var sanitizedArgs = SanitizeArgs(args);
         if (ex is not null)
-            _logger.Error(ex, message, args);
+            _logger.Error(ex, message, sanitizedArgs);
         else
-            _logger.Error(message, args);
+            _logger.Error(message, sanitizedArgs);
     }
-    public void Debug(string message, params object[] args) => _logger.Debug(message, args);
+    public void Debug(string message, params object[] args) => _logger.Debug(message, SanitizeArgs(args));
+
+    private static object[] SanitizeArgs(object[] args)
+    {
+        if (args is null || args.Length == 0)
+        {
+            return Array.Empty<object>();
+        }
+
+        var sanitized = new object[args.Length];
+        for (var i = 0; i < args.Length; i++)
+        {
+            sanitized[i] = SanitizeValue(args[i]);
+        }
+
+        return sanitized;
+    }
+
+    private static object SanitizeValue(object value)
+    {
+        if (value is string text)
+        {
+            if (Path.IsPathRooted(text) || text.Contains(Path.DirectorySeparatorChar) || text.Contains(Path.AltDirectorySeparatorChar))
+            {
+                var fileName = Path.GetFileName(text);
+                return string.IsNullOrWhiteSpace(fileName) ? "[REDACTED]" : fileName;
+            }
+        }
+
+        return value;
+    }
 }
