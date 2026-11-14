@@ -2,7 +2,7 @@
  
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>net8.0-windows;net8.0</TargetFrameworks>
+    <TargetFrameworks>net11.0-windows;net11.0</TargetFrameworks>
     <AssemblyName>odu</AssemblyName>
     <Description>CLI tool for OpenDriverUpdater — same Core layer, terminal interface.</Description>
   </PropertyGroup>
