@@ -16,14 +16,25 @@ public partial class RecommendationViewModel : ObservableObject
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanInstall))]
+    [NotifyCanExecuteChangedFor(nameof(InstallCommand))]
     private bool _isBusy;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanInstall))]
+    [NotifyCanExecuteChangedFor(nameof(InstallCommand))]
     private bool _isCompleted;
 
-    /// <summary>The Install button is clickable only when idle and not yet installed.</summary>
-    public bool CanInstall => !IsBusy && !IsCompleted;
+    /// <summary>
+    /// Set while "Update All" is running, so this tile's own Install button
+    /// can't start a second install alongside the batch.
+    /// </summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanInstall))]
+    [NotifyCanExecuteChangedFor(nameof(InstallCommand))]
+    private bool _isLocked;
+
+    /// <summary>The Install button is clickable only when idle, not yet installed and not locked.</summary>
+    public bool CanInstall => !IsBusy && !IsCompleted && !IsLocked;
 
     [ObservableProperty]
     private bool _hasError;
@@ -36,7 +47,7 @@ public partial class RecommendationViewModel : ObservableObject
         _recommendation = recommendation;
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanInstall))]
     private async Task InstallAsync()
     {
         if (IsBusy || IsCompleted || _recommendation.Candidate is not { } candidate) return;

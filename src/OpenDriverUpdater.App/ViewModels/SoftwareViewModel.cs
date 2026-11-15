@@ -11,7 +11,18 @@ public partial class SoftwareViewModel : ObservableObject
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(RefreshCommand))]
     [NotifyCanExecuteChangedFor(nameof(CheckForUpdatesCommand))]
+    [NotifyCanExecuteChangedFor(nameof(UpdateAllCommand))]
     private bool _isLoading;
+
+    /// <summary>"Update All" is updating apps one after another.</summary>
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(RefreshCommand))]
+    [NotifyCanExecuteChangedFor(nameof(CheckForUpdatesCommand))]
+    [NotifyCanExecuteChangedFor(nameof(UpdateAllCommand))]
+    [NotifyPropertyChangedFor(nameof(ShowUpdateAll))]
+    private bool _isUpdatingAll;
+
+    private bool _stopRequested;
 
     [ObservableProperty]
     private string? _statusMessage;
@@ -31,12 +42,105 @@ public partial class SoftwareViewModel : ObservableObject
     }
 
     // Replacing the tiles mid-update would orphan the running update.
-    private bool CanRun() => !IsLoading && !Apps.Any(a => a.IsBusy);
+    private bool CanRun() => !IsLoading && !IsUpdatingAll && !Apps.Any(a => a.IsBusy);
+
+    /// <summary>Apps with an update winget can install, not yet done and not running.</summary>
+    private List<SoftwareItemViewModel> PendingUpdates() =>
+        Apps.Where(a => a.NeedsUpdate && a.App.IsTracked && !a.IsBusy).ToList();
+
+    public int PendingUpdateCount => PendingUpdates().Count;
+
+    /// <summary>Shown after "Check for Updates" finds at least one update.</summary>
+    public bool ShowUpdateAll => !IsUpdatingAll && PendingUpdateCount > 0;
+
+    public string UpdateAllText => $"Update All ({PendingUpdateCount})";
 
     private void OnItemBusyChanged(object? sender, EventArgs e)
     {
         RefreshCommand.NotifyCanExecuteChanged();
         CheckForUpdatesCommand.NotifyCanExecuteChanged();
+        NotifyUpdateAllState();
+    }
+
+    private void NotifyUpdateAllState()
+    {
+        OnPropertyChanged(nameof(PendingUpdateCount));
+        OnPropertyChanged(nameof(ShowUpdateAll));
+        OnPropertyChanged(nameof(UpdateAllText));
+        UpdateAllCommand.NotifyCanExecuteChanged();
+    }
+
+    private bool CanUpdateAll() => !IsLoading && !IsUpdatingAll && PendingUpdateCount > 0;
+
+    /// <summary>
+    /// Updates every app that needs it, one at a time. A failure doesn't stop
+    /// the batch; Stop finishes the current update and skips the rest.
+    /// </summary>
+    [RelayCommand(CanExecute = nameof(CanUpdateAll))]
+    private async Task UpdateAllAsync()
+    {
+        // winget is part of App Installer: updating it mid-batch can break the
+        // remaining updates, so it always goes last.
+        var queue = PendingUpdates()
+            .OrderBy(a => a.App.Id.StartsWith("Microsoft.AppInstaller", StringComparison.OrdinalIgnoreCase)
+                          || a.App.Id.StartsWith("Microsoft.DesktopAppInstaller", StringComparison.OrdinalIgnoreCase))
+            .ToList();
+        if (queue.Count == 0) return;
+
+        _stopRequested = false;
+        IsUpdatingAll = true;
+        foreach (var item in queue)
+            item.IsLocked = true;
+
+        int updated = 0, failed = 0, processed = 0;
+        try
+        {
+            App.DiscordPresence.SetPresence($"Updating {queue.Count} apps", "Update All");
+
+            foreach (var item in queue)
+            {
+                if (_stopRequested) break;
+
+                processed++;
+                // Skip anything that changed since the batch started.
+                if (item.IsCompleted || item.IsBusy) continue;
+
+                StatusMessage = $"Updating {processed} of {queue.Count}: {item.App.Name}...";
+
+                await item.UpdateCommand.ExecuteAsync(null);
+
+                if (item.IsCompleted) updated++;
+                else failed++;
+
+                item.IsLocked = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            App.Logger.Error("Update All (software) failed", ex);
+        }
+        finally
+        {
+            foreach (var item in queue)
+                item.IsLocked = false;
+            IsUpdatingAll = false;
+            NotifyUpdateAllState();
+        }
+
+        var skipped = queue.Count - processed;
+        var summary = $"Updated {updated} of {queue.Count} app{(queue.Count == 1 ? "" : "s")}.";
+        if (failed > 0) summary += $" {failed} failed (see the tile for details).";
+        if (skipped > 0) summary += $" {skipped} skipped because you pressed Stop.";
+        StatusMessage = summary;
+        App.DiscordPresence.SetPresence($"{updated} apps updated", "Ready");
+    }
+
+    [RelayCommand]
+    private void StopUpdateAll()
+    {
+        if (!IsUpdatingAll) return;
+        _stopRequested = true;
+        StatusMessage = "Stopping after the current update finishes...";
     }
 
     /// <summary>Lists installed apps (no update status shown, like the Devices page).</summary>
@@ -59,6 +163,7 @@ public partial class SoftwareViewModel : ObservableObject
         finally
         {
             IsLoading = false;
+            NotifyUpdateAllState();
         }
     }
 
@@ -94,6 +199,7 @@ public partial class SoftwareViewModel : ObservableObject
         finally
         {
             IsLoading = false;
+            NotifyUpdateAllState();
         }
     }
 

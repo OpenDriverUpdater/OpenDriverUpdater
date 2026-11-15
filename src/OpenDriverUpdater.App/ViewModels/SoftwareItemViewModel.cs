@@ -35,6 +35,12 @@ public partial class SoftwareItemViewModel : ObservableObject
     [ObservableProperty]
     private bool _hasError;
 
+    /// <summary>Set while "Update All" runs, so this tile's own Update button can't start a parallel update.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanUpdate))]
+    [NotifyCanExecuteChangedFor(nameof(UpdateCommand))]
+    private bool _isLocked;
+
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasStatus))]
     private string _status = string.Empty;
@@ -48,7 +54,7 @@ public partial class SoftwareItemViewModel : ObservableObject
     /// <summary>Checked, a newer version exists, and it hasn't been installed yet.</summary>
     public bool NeedsUpdate => IsChecked && App.HasUpdate && !IsCompleted;
 
-    public bool CanUpdate => NeedsUpdate && App.IsTracked && !IsBusy;
+    public bool CanUpdate => NeedsUpdate && App.IsTracked && !IsBusy && !IsLocked;
 
     public string SourceText => App.IsTracked ? App.Source! : "—";
 

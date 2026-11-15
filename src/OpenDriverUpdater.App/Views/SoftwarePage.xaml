@@ -16,6 +16,11 @@
         <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="12">
             <Button Content="Refresh" Command="{Binding RefreshCommand}" />
             <Button Content="Check for Updates" Command="{Binding CheckForUpdatesCommand}" Style="{StaticResource AccentButtonStyle}" />
+            <Button Content="{Binding UpdateAllText}" Command="{Binding UpdateAllCommand}"
+                    Visibility="{Binding ShowUpdateAll, Converter={StaticResource BoolToVisibilityConverter}}" />
+            <Button Content="Stop" Command="{Binding StopUpdateAllCommand}"
+                    ToolTipService.ToolTip="Finish the current update, then stop"
+                    Visibility="{Binding IsUpdatingAll, Converter={StaticResource BoolToVisibilityConverter}}" />
             <ProgressRing IsActive="{Binding IsLoading}" Width="24" Height="24" />
         </StackPanel>
 
