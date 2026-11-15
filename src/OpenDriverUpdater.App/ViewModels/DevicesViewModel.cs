@@ -19,12 +19,28 @@ public partial class DevicesViewModel : ObservableObject
 
     public ObservableCollection<DeviceItemViewModel> Devices { get; } = [];
 
-    public DevicesViewModel()
+    /// <summary>
+    /// One instance for the app's lifetime, so scan and update-check results
+    /// survive navigating to other pages. They are only replaced when Refresh
+    /// or Check for Updates is pressed, or the app is closed.
+    /// </summary>
+    public static DevicesViewModel Shared => _shared ??= new DevicesViewModel();
+    private static DevicesViewModel? _shared;
+
+    private DevicesViewModel()
     {
         _ = RefreshAsync();
     }
 
-    private bool CanRun() => !IsLoading;
+    // Replacing the tiles mid-install would orphan the running install,
+    // so both buttons are disabled while any install is in progress.
+    private bool CanRun() => !IsLoading && !Devices.Any(d => d.Update?.IsBusy == true);
+
+    private void OnItemBusyChanged(object? sender, EventArgs e)
+    {
+        RefreshCommand.NotifyCanExecuteChanged();
+        CheckForUpdatesCommand.NotifyCanExecuteChanged();
+    }
 
     [RelayCommand(CanExecute = nameof(CanRun))]
     private async Task RefreshAsync()
@@ -110,13 +126,19 @@ public partial class DevicesViewModel : ObservableObject
 
     private async Task ScanIntoListAsync()
     {
+        foreach (var old in Devices)
+            old.BusyChanged -= OnItemBusyChanged;
         Devices.Clear();
         App.DiscordPresence.SetPresence("Scanning hardware...", "OpenDriverUpdater");
 
         var devices = await App.Scanner.ScanAsync();
         var ordered = devices.OrderByDescending(GetPriority).ThenBy(d => d.Class).ThenBy(d => d.Name).ToList();
         foreach (var device in ordered)
-            Devices.Add(new DeviceItemViewModel(device));
+        {
+            var item = new DeviceItemViewModel(device);
+            item.BusyChanged += OnItemBusyChanged;
+            Devices.Add(item);
+        }
 
         App.DiscordPresence.SetPresence($"{devices.Count} devices found", "Ready");
     }

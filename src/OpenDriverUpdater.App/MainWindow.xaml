@@ -3,23 +3,49 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    xmlns:controls="using:OpenDriverUpdater.App.Controls"
     Title="OpenDriverUpdater">
 
-    <Grid Background="{StaticResource SurfaceBrush}" RequestedTheme="Dark">
+    <Grid x:Name="RootGrid" Background="{StaticResource SurfaceBrush}" RequestedTheme="Dark">
         <muxc:NavigationView
             x:Name="NavView"
             IsBackButtonVisible="Collapsed"
             IsSettingsVisible="True"
             PaneDisplayMode="Left"
+            PaneOpened="NavView_PaneOpened"
+            PaneClosed="NavView_PaneClosed"
             SelectionChanged="NavView_SelectionChanged">
 
             <muxc:NavigationView.MenuItems>
                 <muxc:NavigationViewItem x:Name="DevicesNavItem" Content="Devices" Tag="Devices" Icon="ViewAll" />
+                <muxc:NavigationViewItem Content="Software" Tag="Software">
+                    <muxc:NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE7B8;" />
+                    </muxc:NavigationViewItem.Icon>
+                </muxc:NavigationViewItem>
                 <muxc:NavigationViewItem Content="Logs" Tag="Logs" Icon="List" />
             </muxc:NavigationView.MenuItems>
 
             <Frame x:Name="ContentFrame" Background="{StaticResource SurfaceBrush}" />
 
         </muxc:NavigationView>
+
+        <!-- Drag handle on the right edge of the open pane; resizes NavView.OpenPaneLength. -->
+        <controls:PaneResizeGrip
+            x:Name="PaneGrip"
+            Width="8"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Stretch"
+            Background="Transparent"
+            PointerEntered="PaneGrip_PointerEntered"
+            PointerExited="PaneGrip_PointerExited"
+            PointerPressed="PaneGrip_PointerPressed"
+            PointerMoved="PaneGrip_PointerMoved"
+            PointerReleased="PaneGrip_PointerReleased"
+            PointerCaptureLost="PaneGrip_PointerCaptureLost"
+            DoubleTapped="PaneGrip_DoubleTapped">
+            <Rectangle x:Name="PaneGripLine" Width="2" HorizontalAlignment="Center"
+                       Fill="{StaticResource AccentBrush}" Opacity="0" />
+        </controls:PaneResizeGrip>
     </Grid>
 </Window>

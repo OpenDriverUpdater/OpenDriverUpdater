@@ -32,6 +32,9 @@ public partial class DeviceItemViewModel : ObservableObject
 
     public bool HasUpdateStatus => IsChecked;
 
+    /// <summary>Raised when an install on this tile starts or finishes.</summary>
+    public event EventHandler? BusyChanged;
+
     /// <summary>An update was found and has not been installed yet.</summary>
     public bool NeedsUpdate => Update is { IsCompleted: false };
 
@@ -66,6 +69,9 @@ public partial class DeviceItemViewModel : ObservableObject
 
     private void OnUpdatePropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
+        if (e.PropertyName == nameof(RecommendationViewModel.IsBusy))
+            BusyChanged?.Invoke(this, EventArgs.Empty);
+
         if (e.PropertyName is nameof(RecommendationViewModel.IsCompleted) or nameof(RecommendationViewModel.Status))
         {
             OnPropertyChanged(nameof(NeedsUpdate));
