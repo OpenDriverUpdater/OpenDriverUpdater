@@ -17,8 +17,10 @@ public sealed partial class MainWindow : Window
         var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
         appWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "Assets", "odu_favicon.ico"));
 
-        // Default page
-        ContentFrame.Navigate(typeof(DashboardPage));
+        // Default page — selecting the item also navigates via SelectionChanged
+        NavView.SelectedItem = DevicesNavItem;
+        if (ContentFrame.Content is null)
+            ContentFrame.Navigate(typeof(DevicesPage));
     }
 
     private void NavView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
@@ -33,11 +35,9 @@ public sealed partial class MainWindow : Window
         {
             var pageType = tag switch
             {
-                "Dashboard" => typeof(DashboardPage),
                 "Devices" => typeof(DevicesPage),
-                "Updates" => typeof(UpdatesPage),
                 "Logs" => typeof(LogsPage),
-                _ => typeof(DashboardPage)
+                _ => typeof(DevicesPage)
             };
 
             ContentFrame.Navigate(pageType);

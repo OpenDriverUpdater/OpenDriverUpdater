@@ -12,6 +12,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
@@ -19,43 +20,78 @@
 
         <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="12">
             <Button Content="Refresh" Command="{Binding RefreshCommand}" />
+            <Button Content="Check for Updates" Command="{Binding CheckForUpdatesCommand}" Style="{StaticResource AccentButtonStyle}" />
             <ProgressRing IsActive="{Binding IsLoading}" Width="24" Height="24" />
         </StackPanel>
 
-        <ListView Grid.Row="2" ItemsSource="{Binding Devices}" SelectionMode="None" Margin="0,16,0,0">
+        <TextBlock Grid.Row="2" Text="{Binding StatusMessage}" Opacity="0.7" TextWrapping="Wrap" />
+
+        <ListView Grid.Row="3" ItemsSource="{Binding Devices}" SelectionMode="None" Margin="0,8,0,0">
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <Border Style="{StaticResource CardStyle}" Margin="0,4" Padding="16">
-                        <Grid ColumnSpacing="20">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="150" />
-                                <ColumnDefinition Width="160" />
-                                <ColumnDefinition Width="140" />
-                            </Grid.ColumnDefinitions>
+                        <StackPanel Spacing="10">
+                            <Grid ColumnSpacing="20">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="120" />
+                                    <ColumnDefinition Width="160" />
+                                    <ColumnDefinition Width="140" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
 
-                            <!-- Icon Wrapper -->
-                            <Border Grid.Column="0" Width="40" Height="40" CornerRadius="20" Background="{StaticResource SurfaceBrush}" VerticalAlignment="Center">
-                                <FontIcon Glyph="{Binding Class, Converter={StaticResource DeviceClassToIconConverter}}" 
-                                          FontFamily="{StaticResource SymbolThemeFontFamily}" FontSize="18" Opacity="0.8" />
-                            </Border>
+                                <!-- Icon Wrapper -->
+                                <Border Grid.Column="0" Width="40" Height="40" CornerRadius="20" Background="{StaticResource SurfaceBrush}" VerticalAlignment="Center">
+                                    <FontIcon Glyph="{Binding Device.Class, Converter={StaticResource DeviceClassToIconConverter}}"
+                                              FontFamily="{StaticResource SymbolThemeFontFamily}" FontSize="18" Opacity="0.8" />
+                                </Border>
 
-                            <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
-                                <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="14" TextTrimming="CharacterEllipsis" />
-                                <TextBlock Text="{Binding Manufacturer}" Opacity="0.5" FontSize="11" />
-                            </StackPanel>
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                                    <TextBlock Text="{Binding Device.Name}" FontWeight="Bold" FontSize="14" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Text="{Binding Device.Manufacturer}" Opacity="0.5" FontSize="11" />
+                                </StackPanel>
 
-                            <TextBlock Grid.Column="2" Text="{Binding Class}" VerticalAlignment="Center" Opacity="0.7" FontSize="13" />
-                            <StackPanel Grid.Column="3" VerticalAlignment="Center">
-                                <TextBlock Text="{Binding InstalledDriverVersion}" FontSize="13" />
-                                <TextBlock Text="Version" FontSize="10" Opacity="0.4" />
+                                <TextBlock Grid.Column="2" Text="{Binding Device.Class}" VerticalAlignment="Center" Opacity="0.7" FontSize="13" />
+
+                                <StackPanel Grid.Column="3" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding Device.InstalledDriverVersion}" FontSize="13" />
+                                    <StackPanel Orientation="Horizontal" Spacing="4"
+                                                Visibility="{Binding NeedsUpdate, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <FontIcon Glyph="&#xE72A;" FontSize="10" Opacity="0.5" VerticalAlignment="Center" />
+                                        <TextBlock Text="{Binding Update.Recommendation.CandidateVersion}" FontSize="13"
+                                                   Foreground="{StaticResource AccentBrush}" FontWeight="SemiBold" />
+                                    </StackPanel>
+                                    <TextBlock Text="Version" FontSize="10" Opacity="0.4" />
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="4" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding Device.InstalledProvider}" FontSize="13" Opacity="0.8" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Text="Provider" FontSize="10" Opacity="0.4" />
+                                </StackPanel>
+
+                                <!-- Update status + Install -->
+                                <StackPanel Grid.Column="5" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center" MinWidth="200" HorizontalAlignment="Right">
+                                    <Border CornerRadius="10" Padding="10,3" VerticalAlignment="Center"
+                                            BorderThickness="1"
+                                            BorderBrush="{Binding UpdateStatusBrush, Converter={StaticResource ResourceConverter}}"
+                                            Visibility="{Binding HasUpdateStatus, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <TextBlock Text="{Binding UpdateStatusText}" FontSize="12" FontWeight="SemiBold"
+                                                   Foreground="{Binding UpdateStatusBrush, Converter={StaticResource ResourceConverter}}" />
+                                    </Border>
+                                    <Button Content="Install" Command="{Binding Update.InstallCommand}"
+                                            IsEnabled="{Binding Update.CanInstall}"
+                                            Visibility="{Binding NeedsUpdate, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- Install progress / result -->
+                            <StackPanel Spacing="6" Visibility="{Binding NeedsUpdate, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <TextBlock Text="{Binding Update.Status}" FontSize="12" Opacity="0.8" TextWrapping="Wrap" />
+                                <ProgressBar Value="{Binding Update.Progress}" Maximum="100"
+                                             Visibility="{Binding Update.IsBusy, Converter={StaticResource BoolToVisibilityConverter}}" />
                             </StackPanel>
-                            <StackPanel Grid.Column="4" VerticalAlignment="Center">
-                                <TextBlock Text="{Binding InstalledProvider}" FontSize="13" Opacity="0.8" />
-                                <TextBlock Text="Provider" FontSize="10" Opacity="0.4" />
-                            </StackPanel>
-                        </Grid>
+                        </StackPanel>
                     </Border>
                 </DataTemplate>
             </ListView.ItemTemplate>

@@ -10,40 +10,115 @@ namespace OpenDriverUpdater.App.ViewModels;
 public partial class DevicesViewModel : ObservableObject
 {
     [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(RefreshCommand))]
+    [NotifyCanExecuteChangedFor(nameof(CheckForUpdatesCommand))]
     private bool _isLoading;
 
-    public ObservableCollection<DeviceInfo> Devices { get; } = [];
+    [ObservableProperty]
+    private string? _statusMessage;
+
+    public ObservableCollection<DeviceItemViewModel> Devices { get; } = [];
 
     public DevicesViewModel()
     {
         _ = RefreshAsync();
     }
 
-    [RelayCommand]
+    private bool CanRun() => !IsLoading;
+
+    [RelayCommand(CanExecute = nameof(CanRun))]
     private async Task RefreshAsync()
     {
         try
         {
             IsLoading = true;
-            Devices.Clear();
-
-            App.DiscordPresence.SetPresence("Donanım taranıyor...", "OpenDriverUpdater");
-
-            var devices = await App.Scanner.ScanAsync();
-            var ordered = devices.OrderByDescending(GetPriority).ThenBy(d => d.Class).ThenBy(d => d.Name).ToList();
-            foreach (var device in ordered)
-                Devices.Add(device);
-
-            App.DiscordPresence.SetPresence($"{devices.Count} cihaz bulundu", "Hazır");
+            StatusMessage = "Scanning devices...";
+            await ScanIntoListAsync();
+            StatusMessage = $"{Devices.Count} devices found. Click \"Check for Updates\" to look for newer drivers.";
         }
         catch (Exception ex)
         {
+            StatusMessage = $"Device scan failed: {ex.Message}";
             App.Logger.Error("Device refresh failed", ex);
         }
         finally
         {
             IsLoading = false;
         }
+    }
+
+    [RelayCommand(CanExecute = nameof(CanRun))]
+    private async Task CheckForUpdatesAsync()
+    {
+        try
+        {
+            IsLoading = true;
+
+            if (Devices.Count == 0)
+            {
+                StatusMessage = "Scanning devices...";
+                await ScanIntoListAsync();
+            }
+
+            StatusMessage = "Checking for updates... this can take a few minutes.";
+            App.DiscordPresence.SetPresence("Checking for updates...", "Microsoft Update Catalog");
+
+            var devices = Devices.Select(d => d.Device).ToList();
+            var results = await App.Resolver.ResolveAsync(devices);
+            // Never offer a candidate whose hardware IDs don't match the device
+            // (TrustLevel.Untrusted) — see docs/HANDOVER.md "Trust rules".
+            var byDevice = results
+                .Where(r => r.TrustScore is null || r.TrustScore.Level > TrustLevel.Untrusted)
+                .GroupBy(r => r.DeviceId, StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
+
+            foreach (var item in Devices)
+            {
+                item.Update = byDevice.TryGetValue(item.Device.Id, out var rec)
+                    ? new RecommendationViewModel(rec)
+                    : null;
+                item.IsChecked = true;
+            }
+
+            // Devices that need updating go to the top.
+            var reordered = Devices
+                .OrderByDescending(d => d.NeedsUpdate)
+                .ThenByDescending(d => GetPriority(d.Device))
+                .ThenBy(d => d.Device.Class)
+                .ThenBy(d => d.Device.Name)
+                .ToList();
+            Devices.Clear();
+            foreach (var item in reordered)
+                Devices.Add(item);
+
+            var count = byDevice.Count;
+            StatusMessage = count == 0
+                ? "All devices are up to date."
+                : $"{count} device{(count == 1 ? "" : "s")} need{(count == 1 ? "s" : "")} updating.";
+            App.DiscordPresence.SetPresence($"{count} updates found", "Ready to install");
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Update check failed: {ex.Message}";
+            App.Logger.Error("Update check failed", ex);
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    private async Task ScanIntoListAsync()
+    {
+        Devices.Clear();
+        App.DiscordPresence.SetPresence("Scanning hardware...", "OpenDriverUpdater");
+
+        var devices = await App.Scanner.ScanAsync();
+        var ordered = devices.OrderByDescending(GetPriority).ThenBy(d => d.Class).ThenBy(d => d.Name).ToList();
+        foreach (var device in ordered)
+            Devices.Add(new DeviceItemViewModel(device));
+
+        App.DiscordPresence.SetPresence($"{devices.Count} devices found", "Ready");
     }
 
     private static int GetPriority(DeviceInfo d)

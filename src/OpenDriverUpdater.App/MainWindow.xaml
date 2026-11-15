@@ -14,9 +14,7 @@
             SelectionChanged="NavView_SelectionChanged">
 
             <muxc:NavigationView.MenuItems>
-                <muxc:NavigationViewItem Content="Dashboard" Tag="Dashboard" Icon="Home" />
-                <muxc:NavigationViewItem Content="Devices" Tag="Devices" Icon="ViewAll" />
-                <muxc:NavigationViewItem Content="Updates" Tag="Updates" Icon="Download" />
+                <muxc:NavigationViewItem x:Name="DevicesNavItem" Content="Devices" Tag="Devices" Icon="ViewAll" />
                 <muxc:NavigationViewItem Content="Logs" Tag="Logs" Icon="List" />
             </muxc:NavigationView.MenuItems>
 
