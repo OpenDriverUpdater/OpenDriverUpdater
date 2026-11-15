@@ -13,7 +13,7 @@
   state that the build is not code-signed.
 
   The version comes from Directory.Build.props (VersionPrefix + VersionSuffix), the single
-  source of truth. Needs: .NET 8 SDK, Windows SDK (signtool) for signed builds, GitHub CLI
+  source of truth. Needs: .NET 11 SDK, Windows SDK (signtool) for signed builds, GitHub CLI
   (gh auth login, once).
 
 .EXAMPLE

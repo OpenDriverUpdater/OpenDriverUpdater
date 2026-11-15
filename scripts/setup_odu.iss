@@ -35,7 +35,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 
 [Files]
 ; WinUI 3 App — Release publish output (x64, self-contained).
-Source: "..\src\OpenDriverUpdater.App\bin\x64\Release\net8.0-windows10.0.19041.0\win-x64\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\src\OpenDriverUpdater.App\bin\x64\Release\net11.0-windows10.0.19041.0\win-x64\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{group}\OpenDriverUpdater"; Filename: "{app}\OpenDriverUpdater.exe"
