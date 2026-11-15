@@ -261,9 +261,9 @@ public sealed class WingetSoftwareUpdateService : ISoftwareUpdateService
         var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach (var (hive, path) in new[]
                  {
-                     (Registry.LocalMachine, uninstall),
-                     (Registry.LocalMachine, uninstall32),
-                     (Registry.CurrentUser, uninstall),
+                     (Microsoft.Win32.Registry.LocalMachine, uninstall),
+                     (Microsoft.Win32.Registry.LocalMachine, uninstall32),
+                     (Microsoft.Win32.Registry.CurrentUser, uninstall),
                  })
         {
             // Read-only access; nothing in the registry is modified.

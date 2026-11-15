@@ -49,6 +49,7 @@ public sealed partial class MainWindow : Window
             {
                 "Devices" => typeof(DevicesPage),
                 "Software" => typeof(SoftwarePage),
+                "Registry" => typeof(RegistryPage),
                 "Logs" => typeof(LogsPage),
                 _ => typeof(DevicesPage)
             };

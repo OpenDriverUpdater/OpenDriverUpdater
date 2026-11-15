@@ -25,6 +25,7 @@ public partial class App : Application
     public static IReadOnlyList<IDriverSource> DriverSources { get; private set; } = null!;
     public static IDiscordPresence DiscordPresence { get; private set; } = null!;
     public static ISoftwareUpdateService SoftwareUpdates { get; private set; } = null!;
+    public static IRegistryHealthScanner RegistryScanner { get; private set; } = null!;
 
     /// <summary>
     /// Discord Developer Portal Application ID / Client ID.
@@ -97,6 +98,7 @@ public partial class App : Application
         DownloadManager = new HttpDownloadManager(downloadClient, Logger);
         Installer = new OpenDriverUpdater.Infrastructure.Install.PnpUtilInstaller(Logger);
         SoftwareUpdates = new WingetSoftwareUpdateService(Logger);
+        RegistryScanner = new OpenDriverUpdater.Infrastructure.Registry.WindowsRegistryHealthScanner(Logger);
 
         // Discord Rich Presence — varsayılan olarak etkin (otomatik başlar, kapanınca kapanır).
         // İsteğe bağlı override: ODU_DISCORD_APP_ID ortam değişkeni.
