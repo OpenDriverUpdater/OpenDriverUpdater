@@ -48,7 +48,7 @@ public static class CommandLinePath
     }
 
     /// <summary>Splits off the program part: quoted, or unquoted up to a known extension or the first space.</summary>
-    private static (string? Program, string Rest) SplitFirst(string s)
+    private static (string? Program, string Remainder) SplitFirst(string s)
     {
         if (s.StartsWith('"'))
         {
