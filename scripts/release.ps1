@@ -14,7 +14,8 @@
 
   The version comes from Directory.Build.props (VersionPrefix + VersionSuffix), the single
   source of truth. Needs: .NET 11 SDK, Windows SDK (signtool) for signed builds, GitHub CLI
-  (gh auth login, once).
+  (gh auth login, once). If Inno Setup 6 is installed (winget install JRSoftware.InnoSetup),
+  a setup.exe installer is built from scripts\setup_odu.iss as well as the zip.
 
 .EXAMPLE
   .\scripts\release.ps1 -DryRun -Unsigned   # unsigned alpha, everything except tag/release
@@ -94,10 +95,35 @@ New-Item dist -ItemType Directory | Out-Null
 $zip = "dist\$app-$tag-win-x64.zip"
 Compress-Archive -Path "$out\*" -DestinationPath $zip
 
-# SHA256SUMS.txt covers exactly the published zip asset. It is not a replacement
+# SHA256SUMS.txt covers exactly the published assets (zip and installer). It is not a replacement
 # for code signing; it only lets users detect a corrupted or swapped download.
-$hash = (Get-FileHash $zip -Algorithm SHA256).Hash.ToLower()
-Set-Content dist\SHA256SUMS.txt "$hash  $(Split-Path $zip -Leaf)" -Encoding ascii
+$assets = @($zip)
+
+Step 'Installer'
+$iscc = @(
+  "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe",
+  "$env:ProgramFiles\Inno Setup 6\ISCC.exe",
+  "$env:LOCALAPPDATA\Programs\Inno Setup 6\ISCC.exe"
+) | Where-Object { Test-Path $_ } | Select-Object -First 1
+if (-not $iscc) {
+  Write-Warning 'Inno Setup 6 not found, so no setup.exe is built (the zip is still released). Install it with: winget install JRSoftware.InnoSetup'
+}
+else {
+  $numericVersion = ($version -split '-')[0]   # Inno needs plain x.y.z; the label keeps -alpha.1
+  Run $iscc @("/DAppVersion=$numericVersion", "/DAppVersionLabel=$version", 'scripts\setup_odu.iss')
+  $setup = "dist\$app-$tag-win-x64-setup.exe"
+  if (-not (Test-Path $setup)) { throw "Installer not found at $setup" }
+  if (-not $Unsigned) {
+    Run $signtool.FullName @('sign', '/sha1', $thumb, '/fd', 'sha256', '/tr', 'http://timestamp.digicert.com', '/td', 'sha256', $setup)
+    Run $signtool.FullName @('verify', '/pa', $setup)
+  }
+  $assets += $setup
+}
+
+$sums = foreach ($a in $assets) {
+  "$((Get-FileHash $a -Algorithm SHA256).Hash.ToLower())  $(Split-Path $a -Leaf)"
+}
+Set-Content dist\SHA256SUMS.txt $sums -Encoding ascii
 Get-Content dist\SHA256SUMS.txt
 
 if ($DryRun) {
@@ -115,7 +141,7 @@ if ($Unsigned) {
 }
 $sha = git rev-parse HEAD
 $releaseArgs = @(
-  'release', 'create', $tag, $zip, 'dist\SHA256SUMS.txt',
+  'release', 'create', $tag) + $assets + @('dist\SHA256SUMS.txt',
   '--target', $sha, '--title', "$app $tag", '--notes', $notes
 ) + $flags
 Run gh $releaseArgs

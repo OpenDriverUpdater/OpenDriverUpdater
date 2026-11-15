@@ -33,7 +33,19 @@ public partial class LogsViewModel : ObservableObject
 
             if (latestLog is null) return;
 
-            var lines = await File.ReadAllLinesAsync(latestLog);
+            // Serilog keeps today's log open for writing, so open it with
+            // FileShare.ReadWrite (File.ReadAllLines would demand exclusive-write
+            // sharing and fail with "being used by another process").
+            var lines = new List<string>();
+            await using (var stream = new FileStream(latestLog, FileMode.Open, FileAccess.Read,
+                             FileShare.ReadWrite | FileShare.Delete))
+            using (var reader = new StreamReader(stream))
+            {
+                string? line;
+                while ((line = await reader.ReadLineAsync()) is not null)
+                    lines.Add(line);
+            }
+
             foreach (var line in lines.TakeLast(500))
                 LogEntries.Add(line);
         }
