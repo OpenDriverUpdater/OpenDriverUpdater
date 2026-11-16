@@ -57,10 +57,10 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/src/core_rust/target/release/odu_core.dll")
 endif()
 
 # ── Copy OpenDriverUpdater.Bridge.dll to binary folder post-build if present
-if(EXISTS "${CMAKE_SOURCE_DIR}/src/OpenDriverUpdater.Bridge/bin/Debug/net8.0-windows10.0.19041.0/OpenDriverUpdater.Bridge.dll")
+if(EXISTS "${CMAKE_SOURCE_DIR}/src/OpenDriverUpdater.Bridge/bin/Debug/net11.0-windows10.0.19041.0/OpenDriverUpdater.Bridge.dll")
     add_custom_command(TARGET OpenDriverUpdaterGui POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${CMAKE_SOURCE_DIR}/src/OpenDriverUpdater.Bridge/bin/Debug/net8.0-windows10.0.19041.0/OpenDriverUpdater.Bridge.dll"
+            "${CMAKE_SOURCE_DIR}/src/OpenDriverUpdater.Bridge/bin/Debug/net11.0-windows10.0.19041.0/OpenDriverUpdater.Bridge.dll"
             "$<TARGET_FILE_DIR:OpenDriverUpdaterGui>/OpenDriverUpdater.Bridge.dll"
         COMMENT "Copying OpenDriverUpdater.Bridge.dll to target folder..."
     )

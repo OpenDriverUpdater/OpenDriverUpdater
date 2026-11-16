@@ -12,19 +12,34 @@ public partial class RecommendationViewModel : ObservableObject
     private double _progress;
 
     [ObservableProperty]
-    private string _status = "Ready";
+    private string _status = string.Empty;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanInstall))]
+    [NotifyCanExecuteChangedFor(nameof(InstallCommand))]
     private bool _isBusy;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanInstall))]
+    [NotifyCanExecuteChangedFor(nameof(InstallCommand))]
     private bool _isCompleted;
+
+    /// <summary>
+    /// Set while "Update All" is running, so this tile's own Install button
+    /// can't start a second install alongside the batch.
+    /// </summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanInstall))]
+    [NotifyCanExecuteChangedFor(nameof(InstallCommand))]
+    private bool _isLocked;
+
+    /// <summary>The Install button is clickable only when idle, not yet installed and not locked.</summary>
+    public bool CanInstall => !IsBusy && !IsCompleted && !IsLocked;
 
     [ObservableProperty]
     private bool _hasError;
 
     public UpdateRecommendation Recommendation => _recommendation;
-    public string DeviceName => _recommendation.DeviceId; // TODO: Get full name
     public string VersionInfo => $"{_recommendation.InstalledVersion} -> {_recommendation.CandidateVersion}";
 
     public RecommendationViewModel(UpdateRecommendation recommendation)
@@ -32,16 +47,10 @@ public partial class RecommendationViewModel : ObservableObject
         _recommendation = recommendation;
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanInstall))]
     private async Task InstallAsync()
     {
         if (IsBusy || IsCompleted || _recommendation.Candidate is not { } candidate) return;
-
-        // Phase 0.5 safety: install pipeline disabled
-        IsBusy = false;
-        HasError = true;
-        Status = "Install pipeline is not ready";
-        return;
 
         try
         {
@@ -91,7 +100,10 @@ public partial class RecommendationViewModel : ObservableObject
             // System safety: create restore point
             Status = "Preparing system safety...";
             var safety = new OpenDriverUpdater.Infrastructure.Safety.SystemSafetyService(App.Logger);
-            await safety.CreateRestorePointAsync($"OpenDriverUpdater - {_recommendation.DeviceId}", default);
+            var restoreOk = await safety.CreateRestorePointAsync(
+                $"OpenDriverUpdater driver update {candidate.Version}", default);
+            if (!restoreOk)
+                App.Logger.Warn("Continuing without a new restore point (Windows allows one per 24h by default)");
 
             // 2. Install
             Status = "Installing...";

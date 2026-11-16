@@ -25,7 +25,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: 11.0.x
     - name: Restore
       run: dotnet restore OpenDriverUpdater.sln
     - name: Build
@@ -50,26 +50,26 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: 11.0.x
     - name: Restore Linux-buildable projects
-      # WinUI App ve net8.0-windows hedefli Infrastructure.Tests Linux'ta
+      # WinUI App ve net11.0-windows hedefli Infrastructure.Tests Linux'ta
       # derlenmez; bilinçli olarak solution yerine tek tek projeler restore edilir.
-      # Multi-target projelerde yalnızca net8.0 hedefi restore edilir.
+      # Multi-target projelerde yalnızca net11.0 hedefi restore edilir.
       run: |
         dotnet restore src/OpenDriverUpdater.Core/OpenDriverUpdater.Core.csproj
-        dotnet restore src/OpenDriverUpdater.Infrastructure/OpenDriverUpdater.Infrastructure.csproj -p:TargetFrameworks=net8.0
-        dotnet restore src/OpenDriverUpdater.Cli/OpenDriverUpdater.Cli.csproj -p:TargetFrameworks=net8.0
+        dotnet restore src/OpenDriverUpdater.Infrastructure/OpenDriverUpdater.Infrastructure.csproj -p:TargetFrameworks=net11.0
+        dotnet restore src/OpenDriverUpdater.Cli/OpenDriverUpdater.Cli.csproj -p:TargetFrameworks=net11.0
         dotnet restore tests/OpenDriverUpdater.Core.Tests/OpenDriverUpdater.Core.Tests.csproj
-    - name: Build Infrastructure (net8.0)
-      run: dotnet build src/OpenDriverUpdater.Infrastructure/OpenDriverUpdater.Infrastructure.csproj -c Release -f net8.0 --no-restore
-    - name: Build CLI (net8.0)
-      run: dotnet build src/OpenDriverUpdater.Cli/OpenDriverUpdater.Cli.csproj -c Release -f net8.0 --no-restore
+    - name: Build Infrastructure (net11.0)
+      run: dotnet build src/OpenDriverUpdater.Infrastructure/OpenDriverUpdater.Infrastructure.csproj -c Release -f net11.0 --no-restore
+    - name: Build CLI (net11.0)
+      run: dotnet build src/OpenDriverUpdater.Cli/OpenDriverUpdater.Cli.csproj -c Release -f net11.0 --no-restore
     - name: Test Core
       # Platformdan bağımsız Core testleri Linux'ta da çalışır.
       run: dotnet test tests/OpenDriverUpdater.Core.Tests/OpenDriverUpdater.Core.Tests.csproj -c Release --no-restore --verbosity normal
     - name: Publish CLI (Linux)
       run: |
-        dotnet publish src/OpenDriverUpdater.Cli/OpenDriverUpdater.Cli.csproj -c Release -f net8.0 -r linux-x64 --self-contained true -p:PublishSingleFile=true -o ./publish/linux-cli
+        dotnet publish src/OpenDriverUpdater.Cli/OpenDriverUpdater.Cli.csproj -c Release -f net11.0 -r linux-x64 --self-contained true -p:PublishSingleFile=true -o ./publish/linux-cli
     - name: Upload Linux CLI Artifact
       uses: actions/upload-artifact@v4
       with:

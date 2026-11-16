@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Text;
 
 namespace OpenDriverUpdater.Infrastructure.Install;
 
@@ -12,6 +13,17 @@ namespace OpenDriverUpdater.Infrastructure.Install;
 /// </summary>
 public sealed class SystemProcessRunner : IProcessRunner
 {
+    private readonly Encoding? _outputEncoding;
+
+    /// <param name="outputEncoding">
+    /// Encoding of the child's stdout/stderr. Null keeps the console default
+    /// (pnputil/expand); winget writes UTF-8.
+    /// </param>
+    public SystemProcessRunner(Encoding? outputEncoding = null)
+    {
+        _outputEncoding = outputEncoding;
+    }
+
     public async Task<ProcessRunResult> RunAsync(
         string fileName,
         IReadOnlyList<string> arguments,
@@ -25,7 +37,7 @@ public sealed class SystemProcessRunner : IProcessRunner
 
         ArgumentNullException.ThrowIfNull(arguments);
 
-        var startInfo = CreateStartInfo(fileName, arguments);
+        var startInfo = CreateStartInfo(fileName, arguments, _outputEncoding);
 
         using var process = Process.Start(startInfo)
             ?? throw new InvalidOperationException($"Failed to start process: {fileName}");
@@ -80,7 +92,8 @@ public sealed class SystemProcessRunner : IProcessRunner
     /// </summary>
     internal static ProcessStartInfo CreateStartInfo(
         string fileName,
-        IReadOnlyList<string> arguments)
+        IReadOnlyList<string> arguments,
+        Encoding? outputEncoding = null)
     {
         var startInfo = new ProcessStartInfo
         {
@@ -90,6 +103,12 @@ public sealed class SystemProcessRunner : IProcessRunner
             UseShellExecute = false,
             CreateNoWindow = true,
         };
+
+        if (outputEncoding is not null)
+        {
+            startInfo.StandardOutputEncoding = outputEncoding;
+            startInfo.StandardErrorEncoding = outputEncoding;
+        }
 
         foreach (var argument in arguments)
         {
