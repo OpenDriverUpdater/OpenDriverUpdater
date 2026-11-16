@@ -7,9 +7,8 @@ on:
   pull_request:
     branches: [ main ]
 
-# Varsayılan izin yalnızca okuma. Yayın job'u kapalı olduğu için yazma izni
-# hiçbir job'a verilmiyor. Release açıldığında yalnızca o job'a contents: write
-# verilmelidir.
+# Varsayılan izin yalnızca okuma. Yazma izni (contents: write) sadece
+# create_release job'una verilir; diğer job'lar read-only kalır.
 permissions:
   contents: read
 
@@ -20,6 +19,12 @@ jobs:
   build_windows:
     name: Build & Test (Windows)
     runs-on: windows-latest
+    outputs:
+      signed: ${{ steps.sign.outputs.signed }}
+    env:
+      # İsteğe bağlı: tanımlı değilse build imzasız (alpha/prerelease) çıkar.
+      WIN_CERT_B64: ${{ secrets.WIN_CERT_PFX_BASE64 }}
+      WIN_CERT_PASSWORD: ${{ secrets.WIN_CERT_PASSWORD }}
     steps:
     - uses: actions/checkout@v4
     - name: Setup .NET
@@ -36,6 +41,28 @@ jobs:
     - name: Publish App (Windows)
       run: |
         dotnet publish src/OpenDriverUpdater.App/OpenDriverUpdater.App.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o ./publish/win-app
+    - name: Sign Windows executable (optional, tag builds only)
+      id: sign
+      shell: pwsh
+      run: |
+        if ($env:GITHUB_REF -notlike 'refs/tags/v*') {
+          "signed=false" >> $env:GITHUB_OUTPUT
+          exit 0
+        }
+        if ([string]::IsNullOrEmpty($env:WIN_CERT_B64)) {
+          Write-Host "::warning::WIN_CERT_PFX_BASE64 secret yok. Release imzasız olacak (prerelease)."
+          "signed=false" >> $env:GITHUB_OUTPUT
+          exit 0
+        }
+        $pfx = Join-Path $env:RUNNER_TEMP 'codesign.pfx'
+        [IO.File]::WriteAllBytes($pfx, [Convert]::FromBase64String($env:WIN_CERT_B64))
+        $signtool = Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\bin\*\x64\signtool.exe" |
+          Sort-Object FullName -Descending | Select-Object -First 1
+        if (-not $signtool) { throw "signtool.exe bulunamadı" }
+        & $signtool.FullName sign /f $pfx /p $env:WIN_CERT_PASSWORD /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 ./publish/win-app/OpenDriverUpdater.exe
+        if ($LASTEXITCODE -ne 0) { throw "İmzalama başarısız" }
+        Remove-Item $pfx -Force
+        "signed=true" >> $env:GITHUB_OUTPUT
     - name: Upload Windows App Artifact
       uses: actions/upload-artifact@v4
       with:
@@ -76,17 +103,64 @@ jobs:
         name: OpenDriverUpdater-Linux
         path: ./publish/linux-cli/odu
 
-  # Release publishing remains intentionally disabled. Before enabling:
-  #   - all build/test jobs must be green (needs below enforces ordering),
-  #   - signing must be configured in CI (not a self-made root CA),
-  #   - a SHA256 manifest must be published with the real assets,
-  #   - no password-protected archive may be the default distribution format.
+  # Release yalnızca "v*" tag push'unda ve iki build/test job'u da yeşilse çalışır.
+  # Örnek: git tag v0.1.0 && git push origin v0.1.0
+  # - Sertifika secret'ı varsa Windows exe imzalı, release "latest" olur.
+  # - Secret yoksa veya tag'de "-" varsa (v0.1.0-alpha.1) release prerelease olur.
+  # - Her release'e SHA256SUMS.txt eklenir. Şifreli arşiv kullanılmaz.
   create_release:
-    name: Create GitHub Release (disabled)
+    name: Create GitHub Release
     needs: [build_windows, build_linux]
-    if: false
+    if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      TAG: ${{ github.ref_name }}
+      SIGNED: ${{ needs.build_windows.outputs.signed }}
     steps:
-    - name: Release publishing is intentionally disabled
+    - name: Download artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: dist
+
+    - name: Prepare release assets
       run: |
-        echo "Release publishing is disabled. Use scripts/release.ps1 with a signing certificate, or -Unsigned for an alpha build with SHA256SUMS.txt."
+        set -euo pipefail
+        mkdir -p release
+
+        cp dist/OpenDriverUpdater-Windows/OpenDriverUpdater.exe "release/OpenDriverUpdater-${TAG}-win-x64.exe"
+
+        # upload-artifact çalıştırma iznini (+x) kaybeder; tar.gz içinde geri verilir.
+        chmod +x dist/OpenDriverUpdater-Linux/odu
+        tar -czf "release/odu-${TAG}-linux-x64.tar.gz" -C dist/OpenDriverUpdater-Linux odu
+
+        cd release
+        sha256sum * > SHA256SUMS.txt
+        cat SHA256SUMS.txt
+
+    - name: Create or update GitHub Release
+      run: |
+        set -euo pipefail
+
+        PRERELEASE_FLAG=""
+        NOTE="Doğrulama: indirdiğiniz dosyanın SHA256 değerini SHA256SUMS.txt ile karşılaştırın."
+        if [[ "$SIGNED" != "true" ]]; then
+          PRERELEASE_FLAG="--prerelease"
+          NOTE="$NOTE"$'\n\n'"⚠️ Bu sürüm kod imzasız (alpha). Windows SmartScreen uyarısı gösterebilir."
+        elif [[ "$TAG" == *-* ]]; then
+          PRERELEASE_FLAG="--prerelease"
+        fi
+
+        # Job yeniden çalıştırılırsa hata vermesin: varsa güncelle, yoksa oluştur.
+        if gh release view "$TAG" >/dev/null 2>&1; then
+          gh release upload "$TAG" release/* --clobber
+        else
+          gh release create "$TAG" release/* \
+            --title "$TAG" \
+            --generate-notes \
+            --notes "$NOTE" \
+            $PRERELEASE_FLAG
+        fi
