@@ -47,42 +47,25 @@ public sealed class SerilogLoggerService : ILoggerService
         var sanitized = new object[args.Length];
         for (var i = 0; i < args.Length; i++)
         {
-            sanitized[i] = SanitizeValue(args[i]);
+            sanitized[i] = args[i] is string value && LooksLikePath(value)
+                ? SanitizePath(value)
+                : args[i];
         }
 
         return sanitized;
     }
 
-    private static object SanitizeValue(object value)
+    private static bool LooksLikePath(string value)
     {
-        if (value is null)
-        {
-            return "[REDACTED]";
-        }
+        return !string.IsNullOrWhiteSpace(value)
+            && (Path.IsPathRooted(value)
+                || value.Contains(Path.DirectorySeparatorChar)
+                || value.Contains(Path.AltDirectorySeparatorChar));
+    }
 
-        var text = Convert.ToString(value);
-        if (string.IsNullOrWhiteSpace(text))
-        {
-            return "[REDACTED]";
-        }
-
-        if (Path.IsPathRooted(text) || text.Contains(Path.DirectorySeparatorChar) || text.Contains(Path.AltDirectorySeparatorChar))
-        {
-            var fileName = Path.GetFileName(text);
-            return string.IsNullOrWhiteSpace(fileName) ? "[REDACTED]" : fileName;
-        }
-
-        if (text.Contains("password", StringComparison.OrdinalIgnoreCase) ||
-            text.Contains("token", StringComparison.OrdinalIgnoreCase) ||
-            text.Contains("secret", StringComparison.OrdinalIgnoreCase) ||
-            text.Contains("apikey", StringComparison.OrdinalIgnoreCase) ||
-            text.Contains("api_key", StringComparison.OrdinalIgnoreCase) ||
-            text.Contains("privatekey", StringComparison.OrdinalIgnoreCase) ||
-            text.Contains("private_key", StringComparison.OrdinalIgnoreCase))
-        {
-            return "[REDACTED]";
-        }
-
-        return text.Length <= 8 ? "[REDACTED]" : $"{text[..2]}***{text[^2..]}";
+    private static string SanitizePath(string value)
+    {
+        var fileName = Path.GetFileName(value);
+        return string.IsNullOrWhiteSpace(fileName) ? "[REDACTED]" : fileName;
     }
 }
