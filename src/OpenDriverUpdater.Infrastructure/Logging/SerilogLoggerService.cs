@@ -25,14 +25,43 @@ public sealed class SerilogLoggerService : ILoggerService
             .CreateLogger();
     }
 
-    public void Info(string message, params object[] args) => _logger.Information(message, args);
-    public void Warn(string message, params object[] args) => _logger.Warning(message, args);
+    public void Info(string message, params object[] args) => _logger.Information(message, SanitizeArgs(args));
+    public void Warn(string message, params object[] args) => _logger.Warning(message, SanitizeArgs(args));
     public void Error(string message, Exception? ex = null, params object[] args)
     {
+        var sanitizedArgs = SanitizeArgs(args);
+
         if (ex is not null)
-            _logger.Error(ex, message, args);
+            _logger.Error(ex, message, sanitizedArgs);
         else
-            _logger.Error(message, args);
+            _logger.Error(message, sanitizedArgs);
     }
-    public void Debug(string message, params object[] args) => _logger.Debug(message, args);
+    public void Debug(string message, params object[] args) => _logger.Debug(message, SanitizeArgs(args));
+
+    private static object[] SanitizeArgs(object[] args)
+    {
+        return args.Select(SanitizeArg).ToArray();
+    }
+
+    private static object SanitizeArg(object arg)
+    {
+        if (arg is not string value)
+            return arg;
+
+        if (!LooksLikePath(value))
+            return arg;
+
+        var fileName = Path.GetFileName(value);
+        return string.IsNullOrWhiteSpace(fileName) ? "[REDACTED]" : fileName;
+    }
+
+    private static bool LooksLikePath(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return false;
+
+        return Path.IsPathRooted(value)
+            || value.Contains(Path.DirectorySeparatorChar)
+            || value.Contains(Path.AltDirectorySeparatorChar);
+    }
 }
