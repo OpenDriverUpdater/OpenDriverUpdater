@@ -51,7 +51,13 @@ public sealed class SerilogLoggerService : ILoggerService
             {
                 null => null!,
                 string value => SanitizeString(value),
-                _ => args[i]
+                sbyte or byte or short or ushort or int or uint or long or ulong
+                    or float or double or decimal
+                    or bool or char
+                    or DateTime or DateTimeOffset or TimeSpan
+                    or Guid => args[i],
+                Enum => args[i],
+                _ => "[REDACTED]"
             };
         }
 
