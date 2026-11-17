@@ -47,12 +47,30 @@ public sealed class SerilogLoggerService : ILoggerService
         var sanitized = new object[args.Length];
         for (var i = 0; i < args.Length; i++)
         {
-            sanitized[i] = args[i] is string value && LooksLikePath(value)
-                ? SanitizePath(value)
-                : args[i];
+            sanitized[i] = args[i] switch
+            {
+                null => null!,
+                string value => SanitizeString(value),
+                _ => args[i]
+            };
         }
 
         return sanitized;
+    }
+
+    private static string SanitizeString(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return "[REDACTED]";
+        }
+
+        if (LooksLikePath(value))
+        {
+            return SanitizePath(value);
+        }
+
+        return "[REDACTED]";
     }
 
     private static bool LooksLikePath(string value)
