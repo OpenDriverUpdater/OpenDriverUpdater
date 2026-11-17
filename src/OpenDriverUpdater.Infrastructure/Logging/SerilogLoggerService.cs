@@ -30,7 +30,6 @@ public sealed class SerilogLoggerService : ILoggerService
     public void Error(string message, Exception? ex = null, params object[] args)
     {
         var sanitizedArgs = SanitizeArgs(args);
-
         if (ex is not null)
             _logger.Error(ex, message, sanitizedArgs);
         else
@@ -40,28 +39,33 @@ public sealed class SerilogLoggerService : ILoggerService
 
     private static object[] SanitizeArgs(object[] args)
     {
-        return args.Select(SanitizeArg).ToArray();
-    }
+        if (args is null || args.Length == 0)
+        {
+            return Array.Empty<object>();
+        }
 
-    private static object SanitizeArg(object arg)
-    {
-        if (arg is not string value)
-            return arg;
+        var sanitized = new object[args.Length];
+        for (var i = 0; i < args.Length; i++)
+        {
+            sanitized[i] = args[i] is string value && LooksLikePath(value)
+                ? SanitizePath(value)
+                : args[i];
+        }
 
-        if (!LooksLikePath(value))
-            return arg;
-
-        var fileName = Path.GetFileName(value);
-        return string.IsNullOrWhiteSpace(fileName) ? "[REDACTED]" : fileName;
+        return sanitized;
     }
 
     private static bool LooksLikePath(string value)
     {
-        if (string.IsNullOrWhiteSpace(value))
-            return false;
+        return !string.IsNullOrWhiteSpace(value)
+            && (Path.IsPathRooted(value)
+                || value.Contains(Path.DirectorySeparatorChar)
+                || value.Contains(Path.AltDirectorySeparatorChar));
+    }
 
-        return Path.IsPathRooted(value)
-            || value.Contains(Path.DirectorySeparatorChar)
-            || value.Contains(Path.AltDirectorySeparatorChar);
+    private static string SanitizePath(string value)
+    {
+        var fileName = Path.GetFileName(value);
+        return string.IsNullOrWhiteSpace(fileName) ? "[REDACTED]" : fileName;
     }
 }
