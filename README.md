@@ -25,6 +25,15 @@
   <a href="https://learn.microsoft.com/en-us/windows/apps/winui/">
     <img src="https://img.shields.io/badge/WinUI-3-0078D4?style=for-the-badge&logo=windows&logoColor=white" alt="WinUI 3" />
   </a>
+  <a href="https://github.com/OpenDriverUpdater/OpenDriverUpdater">
+    <img src="https://img.shields.io/badge/GitHub-OpenDriverUpdater-blue?logo=github" alt="OpenDriverUpdater on GitHub" />
+  </a>
+  <a href="https://odu.crty-dev.com/">
+    <img src="https://img.shields.io/badge/Website-odu.crty--dev.com-green?logo=google-chrome" alt="OpenDriverUpdater website" />
+  </a>
+  <a href="https://www.virustotal.com/gui/file/384b1532ef8f9f2368ad1e5ac63a0dc11fd2da8e9b53b479c159eced5cb9f79f/detection">
+    <img src="https://img.shields.io/badge/VirusTotal-View%20file%20scan-darkgreen?logo=virustotal" alt="VirusTotal scan for a specific file hash" />
+  </a>
 </p>
 
 <p align="center">
@@ -62,16 +71,7 @@
 
 **OpenDriverUpdater** is a free and open-source Windows driver management project built around safety, transparency, and user control.
 
-<<<<<<< HEAD
 It helps users identify their hardware, find relevant driver updates from trusted sources, verify downloaded packages, and manage installations using native Windows tools.
-=======
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![.NET 11](https://img.shields.io/badge/.NET-11.0-purple.svg)](https://dotnet.microsoft.com/)
-[![WinUI 3](https://img.shields.io/badge/WinUI-3-0078D4.svg)](https://learn.microsoft.com/en-us/windows/apps/winui/)
-[![GitHub](https://img.shields.io/badge/GitHub-OpenDriverUpdater-blue?logo=github)](https://github.com/OpenDriverUpdater/OpenDriverUpdater)
-[![Website](https://img.shields.io/badge/Website-odu.crty.dev-green?logo=google-chrome)](https://odu.crty-dev.com/)
-[![VirusTotal](https://img.shields.io/badge/VirusTotal-Scan-darkgreen?logo=virustotal)](https://www.virustotal.com/gui/file/384b1532ef8f9f2368ad1e5ac63a0dc11fd2da8e9b53b479c159eced5cb9f79f/detection)
->>>>>>> 5e17f29 (feat: add GitHub, website, and VirusTotal badges to README)
 
 Our goal is to provide a lightweight, privacy-respecting alternative to commercial driver updater utilities.
 
@@ -271,6 +271,14 @@ Please also review our [Code of Conduct](CODE_OF_CONDUCT.md) and [Security Polic
 ## 🔐 Security
 
 If you discover a security vulnerability, please do not disclose it in a public issue. Follow the responsible disclosure instructions in [SECURITY.md](SECURITY.md).
+
+## 🌐 Community discussion and references
+
+- **PC Web Plus community discussion:** [OpenDriverUpdater discussion on the PC Web Plus forum](https://www.pcwebplus.nl/phpbb/viewtopic.php?t=24789) — a public forum thread from 6–8 May 2026 with questions and replies from forum participants.
+- **Project website:** [odu.crty-dev.com](https://odu.crty-dev.com/)
+- **Source code and releases:** [GitHub repository](https://github.com/OpenDriverUpdater/OpenDriverUpdater) · [Releases](https://github.com/OpenDriverUpdater/OpenDriverUpdater/releases)
+
+The forum link is provided as a record of community discussion. It should not be interpreted as an endorsement, certification, or independent security audit.
 
 ## 📜 License
 
