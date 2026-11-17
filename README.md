@@ -20,7 +20,7 @@
     <img src="https://img.shields.io/github/license/OpenDriverUpdater/OpenDriverUpdater?style=for-the-badge" alt="MIT License" />
   </a>
   <a href="https://dotnet.microsoft.com/">
-    <img src="https://img.shields.io/badge/.NET-8.0-512BD4?style=for-the-badge&logo=dotnet&logoColor=white" alt=".NET 8" />
+    <img src="https://img.shields.io/badge/.NET-11.0-512BD4?style=for-the-badge&logo=dotnet&logoColor=white" alt=".NET 11" />
   </a>
   <a href="https://learn.microsoft.com/en-us/windows/apps/winui/">
     <img src="https://img.shields.io/badge/WinUI-3-0078D4?style=for-the-badge&logo=windows&logoColor=white" alt="WinUI 3" />
@@ -66,7 +66,7 @@
 It helps users identify their hardware, find relevant driver updates from trusted sources, verify downloaded packages, and manage installations using native Windows tools.
 =======
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![.NET 8](https://img.shields.io/badge/.NET-8.0-purple.svg)](https://dotnet.microsoft.com/)
+[![.NET 11](https://img.shields.io/badge/.NET-11.0-purple.svg)](https://dotnet.microsoft.com/)
 [![WinUI 3](https://img.shields.io/badge/WinUI-3-0078D4.svg)](https://learn.microsoft.com/en-us/windows/apps/winui/)
 [![GitHub](https://img.shields.io/badge/GitHub-OpenDriverUpdater-blue?logo=github)](https://github.com/OpenDriverUpdater/OpenDriverUpdater)
 [![Website](https://img.shields.io/badge/Website-odu.crty.dev-green?logo=google-chrome)](https://odu.crty-dev.com/)
@@ -151,8 +151,8 @@ OpenDriverUpdater.sln
 ## ⚙️ Requirements
 
 - Windows 10 or Windows 11 for the desktop driver-management application.
-- .NET 8 SDK.
-- Visual Studio 2022 with the **Windows application development** workload for the WinUI 3 app.
+- .NET 11 SDK.
+- Visual Studio 2026 (18.12 or later) with the **Windows application development** workload for the WinUI 3 app.
 - Administrator privileges may be required for certain device and driver operations.
 
 The CLI and selected non-UI components are also built and tested on Linux in CI. Linux support does not mean the Windows driver installation features are available on Linux.
@@ -174,14 +174,18 @@ dotnet build OpenDriverUpdater.sln -c Release
 dotnet test OpenDriverUpdater.sln -c Release
 ```
 
-Run a CLI scan:
+Run a CLI scan (the CLI targets both `net11.0-windows` and `net11.0`, so pick one with `-f`):
 
 ```powershell
-dotnet run --project src/OpenDriverUpdater.Cli -- scan
+# Windows (full hardware scanning via WMI)
+dotnet run --project src/OpenDriverUpdater.Cli -f net11.0-windows -- scan
+
+# Linux / cross-platform build
+dotnet run --project src/OpenDriverUpdater.Cli -f net11.0 -- scan
 ```
 
 > [!IMPORTANT]
-> **Building the WinUI 3 desktop application:** use Visual Studio 2022 with the Windows application development workload and Windows App SDK installed. The standard .NET CLI may not build the WinUI project on a machine without the required Windows development components.
+> **Building the WinUI 3 desktop application:** use Visual Studio 2026 (18.12 or later) with the Windows application development workload and Windows App SDK installed. The standard .NET CLI may not build the WinUI project on a machine without the required Windows development components.
 
 ## 🛠️ CLI commands
 

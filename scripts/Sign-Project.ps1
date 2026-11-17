@@ -5,7 +5,7 @@ param(
     [string]$Configuration = "Debug"
 )
 
-$binDir = Join-Path $PSScriptRoot "..\src\OpenDriverUpdater.App\bin\$Configuration\net8.0-windows10.0.19041.0"
+$binDir = Join-Path $PSScriptRoot "..\src\OpenDriverUpdater.App\bin\$Configuration\net11.0-windows10.0.19041.0"
 if (!(Test-Path $binDir)) { 
     Write-Error "Binary directory not found: $binDir. Please build the project first."
     return

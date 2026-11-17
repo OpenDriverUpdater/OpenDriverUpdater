@@ -9,7 +9,7 @@ public sealed class GitHubUpdateService : IGitHubUpdateService
 {
     private readonly HttpClient _httpClient;
     private readonly ILoggerService _logger;
-    private const string RepoApiUrl = "https://api.github.com/repos/OpenDriverUpdater/OpenDriverUpdater/releases/latest";
+    private const string RepoApiUrl = "https://api.github.com/repos/rossgalb/OpenDriverUpdater/releases/latest";
 
     public GitHubUpdateService(HttpClient httpClient, ILoggerService logger)
     {
