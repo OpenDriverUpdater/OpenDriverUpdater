@@ -89,7 +89,6 @@ public sealed class SerilogLoggerService : ILoggerService
 
     private static string SanitizePath(string value)
     {
-        var fileName = Path.GetFileName(value);
-        return string.IsNullOrWhiteSpace(fileName) ? "[REDACTED]" : fileName;
+        return "[REDACTED]";
     }
 }
